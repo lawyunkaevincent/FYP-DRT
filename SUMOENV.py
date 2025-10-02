@@ -84,7 +84,7 @@ class SumoTaxiEnv:
         requests = traci.person.getTaxiReservations()
         for req in requests:
             req_person_id = req.persons[0]
-            print(f"req_person_id: {req_person_id} && person_id: {person_id}")
+            # print(f"req_person_id: {req_person_id} && person_id: {person_id}")
             if req_person_id == person_id:
                 return req.toEdge, req.arrivalPos
     

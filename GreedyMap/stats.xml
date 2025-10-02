@@ -1,22 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!-- generated on 2025-10-03 01:28:16 by Eclipse SUMO GUI Version 1.24.0
+<!-- generated on 2025-10-03 01:33:41 by Eclipse SUMO GUI Version 1.24.0
 <sumoConfiguration xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://sumo.dlr.de/xsd/sumoConfiguration.xsd">
 
     <input>
-        <net-file value=".\RLTrainingMap1\map.net.xml"/>
-        <route-files value=".\RLTrainingMap1\map.rou.xml,.\RLTrainingMap1\persontrips_scale.rou.xml"/>
+        <net-file value="D:\6Sumo\RLTesting\GreedyMap\map.net.xml"/>
+        <route-files value="D:\6Sumo\RLTesting\GreedyMap\map.rou.xml,D:\6Sumo\RLTesting\GreedyMap\persontrips_scale.rou.xml"/>
     </input>
 
     <output>
-        <tripinfo-output value=".\RLTrainingMap1\tripinfos.xml"/>
-        <stop-output value=".\RLTrainingMap1\stopinfos.xml"/>
-        <statistic-output value=".\RLTrainingMap1\stats.xml"/>
+        <tripinfo-output value="D:\6Sumo\RLTesting\GreedyMap\tripinfos.xml"/>
+        <stop-output value="D:\6Sumo\RLTesting\GreedyMap\stopinfos.xml"/>
+        <statistic-output value="D:\6Sumo\RLTesting\GreedyMap\stats.xml"/>
     </output>
-
-    <time>
-        <step-length value="1.0"/>
-    </time>
 
     <report>
         <verbose value="true"/>
@@ -24,19 +20,11 @@
         <no-step-log value="true"/>
     </report>
 
-    <taxi_device>
-        <device.taxi.dispatch-algorithm value="traci"/>
-    </taxi_device>
-
-    <traci_server>
-        <remote-port value="53804"/>
-    </traci_server>
-
 </sumoConfiguration>
 -->
 
 <statistics xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://sumo.dlr.de/xsd/statistic_file.xsd">
-    <performance clockBegin="380710.73" clockEnd="380723.30" clockDuration="12.57" traciDuration="3.85" realTimeFactor="247.06" vehicleUpdatesPerSecond="492.52" personUpdatesPerSecond="1798.28" begin="0.00" end="3106.00" duration="3106.00"/>
+    <performance clockBegin="381035.69" clockEnd="381047.04" clockDuration="11.35" traciDuration="0.00" realTimeFactor="257.62" vehicleUpdatesPerSecond="513.48" personUpdatesPerSecond="1712.59" begin="0.00" end="2923.00" duration="2923.00"/>
     <vehicles loaded="2" inserted="2" running="2" waiting="0"/>
     <teleports total="0" jam="0" yield="0" wrongLane="0"/>
     <safety collisions="0" emergencyStops="0" emergencyBraking="0"/>
@@ -44,6 +32,6 @@
     <personTeleports total="0" abortWait="0" wrongDest="0"/>
     <vehicleTripStatistics count="0" routeLength="0.00" speed="0.00" duration="0.00" waitingTime="0.00" timeLoss="0.00" departDelay="0.00" departDelayWaiting="-1.00" totalTravelTime="0.00" totalDepartDelay="0.00"/>
     <pedestrianStatistics number="0" routeLength="0.00" duration="0.00" timeLoss="0.00"/>
-    <rideStatistics number="26" waitingTime="731.88" routeLength="423.05" duration="212.00" bus="0" train="0" taxi="26" bike="0" aborted="0"/>
+    <rideStatistics number="26" waitingTime="613.46" routeLength="415.94" duration="198.15" bus="0" train="0" taxi="26" bike="0" aborted="0"/>
     <transportStatistics number="0"/>
 </statistics>
