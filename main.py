@@ -24,6 +24,11 @@ def main():
                         help="Save latest checkpoint every N episodes (0/None disables)")
     parser.add_argument("--best-ckpt", type=str, default="checkpoints/best_sarsa.pkl",
                         help="Where to save the best policy (highest episode reward)")
+    parser.add_argument("--epsilon-start", type=float, default=None, help="Initial epsilon for decay")
+    parser.add_argument("--epsilon-end", type=float, default=0.01, help="Final epsilon for decay")
+    parser.add_argument("--epsilon-decay", type=str, default=None,
+        help="Decay type: float (e.g. 0.99 for exponential) or int (e.g. 100 episodes linear)")
+
 
     args = parser.parse_args()
 
@@ -45,6 +50,17 @@ def main():
             epsilon=args.epsilon
         )
         start_episode = 0
+        
+    # Convert epsilon-decay arg
+    epsilon_decay = None
+    if args.epsilon_decay:
+        try:
+            # if integer: linear
+            epsilon_decay = int(args.epsilon_decay)
+        except ValueError:
+            # if float: exponential
+            epsilon_decay = float(args.epsilon_decay)
+
 
     # Configure trainer
     save_every = args.save_every if args.save_every and args.save_every > 0 else None
@@ -54,8 +70,12 @@ def main():
         save_every=save_every,
         ckpt_path=args.save_ckpt if save_every else None,
         best_ckpt_path=args.best_ckpt,
-        start_episode=start_episode
+        start_episode=start_episode,
+        epsilon_start=args.epsilon_start,
+        epsilon_end=args.epsilon_end,
+        epsilon_decay=epsilon_decay
     )
+
 
     # Train
     trainer.train(agent, env, episodes=args.episodes)

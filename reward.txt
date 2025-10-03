@@ -1,30 +1,300 @@
-Episode 0, total reward=6.14
-Episode 1, total reward=-10.08
-Episode 2, total reward=-6.68
-Episode 3, total reward=-16.43
-Episode 4, total reward=-8.34
-Episode 5, total reward=-19.93
-Episode 6, total reward=-14.22
-Episode 7, total reward=-24.20
-Episode 8, total reward=-0.25
-Episode 9, total reward=-18.81
-Episode 10, total reward=-4.78
-Episode 11, total reward=-28.01
-Episode 12, total reward=-16.36
-Episode 13, total reward=-33.31
-Episode 14, total reward=-2.23
-Episode 15, total reward=-9.16
-Episode 16, total reward=0.14
-Episode 17, total reward=0.40
-Episode 18, total reward=-35.58
-Episode 19, total reward=-11.63
-Episode 20, total reward=6.40
-Episode 21, total reward=-7.88
-Episode 22, total reward=-12.09
-Episode 23, total reward=-5.25
-Episode 24, total reward=-18.84
-Episode 25, total reward=-29.58
-Episode 26, total reward=-16.76
-Episode 27, total reward=-21.49
-Episode 28, total reward=-4.40
-Episode 29, total reward=2.15
+Episode 0, total reward=-5.32
+Episode 1, total reward=-1.61
+Episode 2, total reward=-1.39
+Episode 3, total reward=-6.90
+Episode 4, total reward=-19.26
+Episode 5, total reward=-18.75
+Episode 6, total reward=-27.48
+Episode 7, total reward=-32.57
+Episode 8, total reward=-25.43
+Episode 9, total reward=1.68
+Episode 10, total reward=-12.39
+Episode 11, total reward=-4.93
+Episode 12, total reward=-17.48
+Episode 13, total reward=-21.95
+Episode 14, total reward=-0.63
+Episode 15, total reward=14.32
+Episode 16, total reward=-17.58
+Episode 17, total reward=1.19
+Episode 18, total reward=22.44
+Episode 19, total reward=7.70
+Episode 20, total reward=-1.83
+Episode 21, total reward=-4.33
+Episode 22, total reward=5.60
+Episode 23, total reward=-4.17
+Episode 24, total reward=4.19
+Episode 25, total reward=-25.61
+Episode 26, total reward=21.84
+Episode 27, total reward=9.54
+Episode 28, total reward=-19.28
+Episode 29, total reward=15.63
+Episode 30, total reward=-6.39
+Episode 31, total reward=-3.92
+Episode 32, total reward=5.38
+Episode 33, total reward=-19.60
+Episode 34, total reward=-1.99
+Episode 35, total reward=20.24
+Episode 36, total reward=-40.11
+Episode 37, total reward=-13.74
+Episode 38, total reward=-20.49
+Episode 39, total reward=-2.17
+Episode 40, total reward=0.17
+Episode 41, total reward=-11.89
+Episode 42, total reward=-7.16
+Episode 43, total reward=11.61
+Episode 44, total reward=-2.15
+Episode 45, total reward=-35.76
+Episode 46, total reward=-47.53
+Episode 47, total reward=-18.37
+Episode 48, total reward=-0.69
+Episode 49, total reward=-6.14
+Episode 50, total reward=10.64
+Episode 51, total reward=-25.33
+Episode 52, total reward=3.74
+Episode 53, total reward=-18.06
+Episode 54, total reward=9.10
+Episode 55, total reward=10.28
+Episode 56, total reward=5.03
+Episode 57, total reward=10.02
+Episode 58, total reward=-12.13
+Episode 59, total reward=2.79
+Episode 60, total reward=-8.82
+Episode 61, total reward=8.36
+Episode 62, total reward=10.17
+Episode 63, total reward=-15.60
+Episode 64, total reward=-23.77
+Episode 65, total reward=-0.46
+Episode 66, total reward=-25.95
+Episode 67, total reward=13.55
+Episode 68, total reward=-3.09
+Episode 69, total reward=-7.27
+Episode 70, total reward=3.85
+Episode 71, total reward=4.54
+Episode 72, total reward=5.18
+Episode 73, total reward=-3.66
+Episode 74, total reward=12.35
+Episode 75, total reward=-6.56
+Episode 76, total reward=18.87
+Episode 77, total reward=-3.59
+Episode 78, total reward=5.85
+Episode 79, total reward=-13.82
+Episode 80, total reward=10.91
+Episode 81, total reward=-17.31
+Episode 82, total reward=-17.29
+Episode 83, total reward=-10.88
+Episode 84, total reward=8.49
+Episode 85, total reward=15.16
+Episode 86, total reward=12.65
+Episode 87, total reward=2.73
+Episode 88, total reward=21.74
+Episode 89, total reward=-8.66
+Episode 90, total reward=-2.76
+Episode 91, total reward=9.87
+Episode 92, total reward=-7.64
+Episode 93, total reward=0.34
+Episode 94, total reward=13.83
+Episode 95, total reward=-0.29
+Episode 96, total reward=11.10
+Episode 97, total reward=-25.88
+Episode 98, total reward=2.02
+Episode 99, total reward=-3.69
+Episode 0, epsilon=1.0000, total reward=1.15
+Episode 1, epsilon=0.9900, total reward=-2.88
+Episode 2, epsilon=0.9801, total reward=2.29
+Episode 3, epsilon=0.9703, total reward=0.12
+Episode 4, epsilon=0.9606, total reward=1.24
+Episode 5, epsilon=0.9510, total reward=-7.36
+Episode 6, epsilon=0.9415, total reward=-0.76
+Episode 7, epsilon=0.9321, total reward=-4.90
+Episode 8, epsilon=0.9227, total reward=-8.05
+Episode 9, epsilon=0.9135, total reward=-3.91
+Episode 10, epsilon=0.9044, total reward=-6.26
+Episode 11, epsilon=0.8953, total reward=-3.82
+Episode 12, epsilon=0.8864, total reward=-6.61
+Episode 13, epsilon=0.8775, total reward=-3.71
+Episode 14, epsilon=0.8687, total reward=-0.62
+Episode 15, epsilon=0.8601, total reward=-2.33
+Episode 16, epsilon=0.8515, total reward=3.05
+Episode 17, epsilon=0.8429, total reward=-5.84
+Episode 18, epsilon=0.8345, total reward=0.65
+Episode 19, epsilon=0.8262, total reward=-3.63
+Episode 20, epsilon=0.8179, total reward=2.27
+Episode 21, epsilon=0.8097, total reward=3.52
+Episode 22, epsilon=0.8016, total reward=-3.80
+Episode 23, epsilon=0.7936, total reward=-1.12
+Episode 24, epsilon=0.7857, total reward=-0.42
+Episode 25, epsilon=0.7778, total reward=-7.67
+Episode 26, epsilon=0.7700, total reward=-5.58
+Episode 27, epsilon=0.7623, total reward=3.36
+Episode 28, epsilon=0.7547, total reward=-1.70
+Episode 29, epsilon=0.7472, total reward=-5.44
+Episode 30, epsilon=0.7397, total reward=-3.91
+Episode 31, epsilon=0.7323, total reward=-6.11
+Episode 32, epsilon=0.7250, total reward=-7.81
+Episode 33, epsilon=0.7177, total reward=1.39
+Episode 34, epsilon=0.7106, total reward=-1.53
+Episode 35, epsilon=0.7034, total reward=0.99
+Episode 36, epsilon=0.6964, total reward=-6.58
+Episode 37, epsilon=0.6894, total reward=-9.41
+Episode 38, epsilon=0.6826, total reward=0.25
+Episode 39, epsilon=0.6757, total reward=-7.59
+Episode 40, epsilon=0.6690, total reward=-7.33
+Episode 41, epsilon=0.6623, total reward=-15.15
+Episode 42, epsilon=0.6557, total reward=0.69
+Episode 43, epsilon=0.6491, total reward=-4.05
+Episode 44, epsilon=0.6426, total reward=0.42
+Episode 45, epsilon=0.6362, total reward=1.13
+Episode 46, epsilon=0.6298, total reward=-5.27
+Episode 47, epsilon=0.6235, total reward=3.55
+Episode 48, epsilon=0.6173, total reward=-4.63
+Episode 49, epsilon=0.6111, total reward=1.33
+Episode 50, epsilon=0.6050, total reward=-4.99
+Episode 51, epsilon=0.5990, total reward=-1.75
+Episode 52, epsilon=0.5930, total reward=-1.34
+Episode 53, epsilon=0.5870, total reward=-7.59
+Episode 54, epsilon=0.5812, total reward=-0.55
+Episode 55, epsilon=0.5754, total reward=-5.44
+Episode 56, epsilon=0.5696, total reward=1.99
+Episode 57, epsilon=0.5639, total reward=-8.33
+Episode 58, epsilon=0.5583, total reward=0.01
+Episode 59, epsilon=0.5527, total reward=5.38
+Episode 60, epsilon=0.5472, total reward=0.24
+Episode 61, epsilon=0.5417, total reward=-5.14
+Episode 62, epsilon=0.5363, total reward=-11.34
+Episode 63, epsilon=0.5309, total reward=-4.22
+Episode 64, epsilon=0.5256, total reward=5.49
+Episode 65, epsilon=0.5203, total reward=-8.64
+Episode 66, epsilon=0.5151, total reward=-1.44
+Episode 67, epsilon=0.5100, total reward=-6.84
+Episode 68, epsilon=0.5049, total reward=6.93
+Episode 69, epsilon=0.4998, total reward=-20.74
+Episode 70, epsilon=0.4948, total reward=2.70
+Episode 71, epsilon=0.4899, total reward=6.58
+Episode 72, epsilon=0.4850, total reward=-0.43
+Episode 73, epsilon=0.4801, total reward=3.30
+Episode 74, epsilon=0.4753, total reward=-7.72
+Episode 75, epsilon=0.4706, total reward=5.30
+Episode 76, epsilon=0.4659, total reward=-3.81
+Episode 77, epsilon=0.4612, total reward=4.35
+Episode 78, epsilon=0.4566, total reward=-10.08
+Episode 79, epsilon=0.4520, total reward=-7.92
+Episode 80, epsilon=0.4475, total reward=-4.03
+Episode 81, epsilon=0.4430, total reward=1.55
+Episode 82, epsilon=0.4386, total reward=-2.01
+Episode 83, epsilon=0.4342, total reward=-7.83
+Episode 84, epsilon=0.4299, total reward=-1.27
+Episode 85, epsilon=0.4256, total reward=-6.55
+Episode 86, epsilon=0.4213, total reward=-9.54
+Episode 87, epsilon=0.4171, total reward=4.36
+Episode 88, epsilon=0.4129, total reward=4.83
+Episode 89, epsilon=0.4088, total reward=8.31
+Episode 90, epsilon=0.4047, total reward=-1.49
+Episode 91, epsilon=0.4007, total reward=-5.15
+Episode 92, epsilon=0.3967, total reward=-8.51
+Episode 93, epsilon=0.3927, total reward=-2.72
+Episode 94, epsilon=0.3888, total reward=4.90
+Episode 95, epsilon=0.3849, total reward=3.12
+Episode 96, epsilon=0.3810, total reward=-0.98
+Episode 97, epsilon=0.3772, total reward=4.61
+Episode 98, epsilon=0.3735, total reward=-9.58
+Episode 99, epsilon=0.3697, total reward=-13.19
+Episode 100, epsilon=0.3660, total reward=-5.35
+Episode 101, epsilon=0.3624, total reward=-11.74
+Episode 102, epsilon=0.3587, total reward=-1.69
+Episode 103, epsilon=0.3552, total reward=-1.49
+Episode 104, epsilon=0.3516, total reward=5.69
+Episode 105, epsilon=0.3481, total reward=-0.09
+Episode 106, epsilon=0.3446, total reward=-0.30
+Episode 107, epsilon=0.3412, total reward=-5.75
+Episode 108, epsilon=0.3378, total reward=-6.18
+Episode 109, epsilon=0.3344, total reward=2.28
+Episode 110, epsilon=0.3310, total reward=-9.04
+Episode 111, epsilon=0.3277, total reward=-5.87
+Episode 112, epsilon=0.3244, total reward=2.86
+Episode 113, epsilon=0.3212, total reward=-4.73
+Episode 114, epsilon=0.3180, total reward=-6.08
+Episode 115, epsilon=0.3148, total reward=-3.31
+Episode 116, epsilon=0.3117, total reward=6.48
+Episode 117, epsilon=0.3085, total reward=-11.18
+Episode 118, epsilon=0.3055, total reward=0.22
+Episode 119, epsilon=0.3024, total reward=12.08
+Episode 120, epsilon=0.2994, total reward=-1.89
+Episode 121, epsilon=0.2964, total reward=-5.08
+Episode 122, epsilon=0.2934, total reward=8.37
+Episode 123, epsilon=0.2905, total reward=-0.63
+Episode 124, epsilon=0.2876, total reward=-4.69
+Episode 125, epsilon=0.2847, total reward=8.54
+Episode 126, epsilon=0.2819, total reward=-7.60
+Episode 127, epsilon=0.2790, total reward=-6.10
+Episode 128, epsilon=0.2763, total reward=-6.13
+Episode 129, epsilon=0.2735, total reward=-8.64
+Episode 130, epsilon=0.2708, total reward=-4.38
+Episode 131, epsilon=0.2680, total reward=-10.48
+Episode 132, epsilon=0.2654, total reward=0.08
+Episode 133, epsilon=0.2627, total reward=13.31
+Episode 134, epsilon=0.2601, total reward=-7.87
+Episode 135, epsilon=0.2575, total reward=-0.58
+Episode 136, epsilon=0.2549, total reward=6.44
+Episode 137, epsilon=0.2524, total reward=14.48
+Episode 138, epsilon=0.2498, total reward=-2.92
+Episode 139, epsilon=0.2473, total reward=-12.27
+Episode 140, epsilon=0.2449, total reward=6.86
+Episode 141, epsilon=0.2424, total reward=6.13
+Episode 142, epsilon=0.2400, total reward=-22.59
+Episode 143, epsilon=0.2376, total reward=1.12
+Episode 144, epsilon=0.2352, total reward=1.11
+Episode 145, epsilon=0.2329, total reward=-10.94
+Episode 146, epsilon=0.2305, total reward=-0.57
+Episode 147, epsilon=0.2282, total reward=6.29
+Episode 148, epsilon=0.2259, total reward=8.77
+Episode 149, epsilon=0.2237, total reward=-1.40
+Episode 150, epsilon=0.2215, total reward=-2.98
+Episode 151, epsilon=0.2192, total reward=8.17
+Episode 152, epsilon=0.2170, total reward=6.94
+Episode 153, epsilon=0.2149, total reward=0.36
+Episode 154, epsilon=0.2127, total reward=-3.18
+Episode 155, epsilon=0.2106, total reward=2.84
+Episode 156, epsilon=0.2085, total reward=-6.51
+Episode 157, epsilon=0.2064, total reward=-3.48
+Episode 158, epsilon=0.2043, total reward=-4.02
+Episode 159, epsilon=0.2023, total reward=-19.96
+Episode 160, epsilon=0.2003, total reward=-6.31
+Episode 161, epsilon=0.1983, total reward=-3.19
+Episode 162, epsilon=0.1963, total reward=3.47
+Episode 163, epsilon=0.1943, total reward=2.35
+Episode 164, epsilon=0.1924, total reward=-3.87
+Episode 165, epsilon=0.1905, total reward=-4.03
+Episode 166, epsilon=0.1886, total reward=3.79
+Episode 167, epsilon=0.1867, total reward=-14.63
+Episode 168, epsilon=0.1848, total reward=12.89
+Episode 169, epsilon=0.1830, total reward=-5.13
+Episode 170, epsilon=0.1811, total reward=14.19
+Episode 171, epsilon=0.1793, total reward=-4.84
+Episode 172, epsilon=0.1775, total reward=-15.00
+Episode 173, epsilon=0.1757, total reward=3.09
+Episode 174, epsilon=0.1740, total reward=8.78
+Episode 175, epsilon=0.1722, total reward=-10.41
+Episode 176, epsilon=0.1705, total reward=-0.32
+Episode 177, epsilon=0.1688, total reward=9.95
+Episode 178, epsilon=0.1671, total reward=-9.42
+Episode 179, epsilon=0.1655, total reward=4.92
+Episode 180, epsilon=0.1638, total reward=9.91
+Episode 181, epsilon=0.1622, total reward=-5.65
+Episode 182, epsilon=0.1605, total reward=14.52
+Episode 183, epsilon=0.1589, total reward=-2.02
+Episode 184, epsilon=0.1574, total reward=5.65
+Episode 185, epsilon=0.1558, total reward=-5.44
+Episode 186, epsilon=0.1542, total reward=4.33
+Episode 187, epsilon=0.1527, total reward=-2.43
+Episode 188, epsilon=0.1512, total reward=15.03
+Episode 189, epsilon=0.1496, total reward=7.66
+Episode 190, epsilon=0.1481, total reward=-6.83
+Episode 191, epsilon=0.1467, total reward=-12.30
+Episode 192, epsilon=0.1452, total reward=22.17
+Episode 193, epsilon=0.1437, total reward=-2.37
+Episode 194, epsilon=0.1423, total reward=16.95
+Episode 195, epsilon=0.1409, total reward=-15.74
+Episode 196, epsilon=0.1395, total reward=17.72
+Episode 197, epsilon=0.1381, total reward=4.91
+Episode 198, epsilon=0.1367, total reward=0.63
+Episode 199, epsilon=0.1353, total reward=6.96
