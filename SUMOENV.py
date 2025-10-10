@@ -22,6 +22,11 @@ class SumoTaxiEnv:
         self.oldest_wait_dec_list = []
         # key is taxis, value is current onboarding person id
         self.LUT_dict = {}
+        # for reward computation
+        self._ema = {"td":0.0,"mw":0.0,"ow":0.0}
+        self._v = {"td":1.0,"mw":1.0,"ow":1.0}   # variance estimates
+        self._ema_inited = False
+
 
     # ---------- SUMO glue ----------
     def _start_sumo(self):
@@ -233,28 +238,35 @@ class SumoTaxiEnv:
         # action 5 -> do nothing
         elif action == 5:
             pass
-
-
+        
+     
+    def _z(self, key, x, beta=0.99):
+        if not self._ema_inited:
+            self._ema[key] = x
+            self._v[key] = (x - self._ema[key])**2 + 1e-4
+            return 0.0
+        mu = self._ema[key]
+        var = self._v[key]
+        z = (x - mu) / (np.sqrt(var) + 1e-6)
+        # update AFTER computing z so current sample doesn’t normalize itself
+        self._ema[key] = beta*mu + (1-beta)*x
+        self._v[key] = beta*var + (1-beta)*(x - self._ema[key])**2
+        return float(np.clip(z, -3.0, 3.0))
 
     def _compute_reward(self, prev_metrics, curr_metrics):
-        """
-        MVP reward: negative increase in total waiting time between decision points,
-        plus pickup bonuses.
-        # reward is evaluated after two decision points
-        """
-        # Example:
-        time_diff = curr_metrics["time"] - prev_metrics["time"]
-        mean_wait_decre = prev_metrics["mean_wait"] - curr_metrics["mean_wait"] 
-        oldest_wait_decre = prev_metrics["oldest_wait"] - curr_metrics["oldest_wait"]
-        self.time_diff_list.append(time_diff)
-        self.mean_wait_dec_list.append(mean_wait_decre)
-        self.oldest_wait_dec_list.append(oldest_wait_decre)
-        # normalize the time difference, mean wait decrease and oldest wait decrease
-        time_diff = (time_diff - np.mean(self.time_diff_list)) / (np.std(self.time_diff_list) + 1e-5)
-        mean_wait_decre = (mean_wait_decre - np.mean(self.mean_wait_dec_list)) / (np.std(self.mean_wait_dec_list) + 1e-5)
-        oldest_wait_decre = (oldest_wait_decre - np.mean(self.oldest_wait_dec_list)) / (np.std(self.oldest_wait_dec_list) + 1e-5)
-        r = -0.1 * time_diff + 0.5 * mean_wait_decre + 0.3 * oldest_wait_decre
-        return r
+        td = curr_metrics["time"] - prev_metrics["time"]
+        d_mean = prev_metrics["mean_wait"] - curr_metrics["mean_wait"]
+        d_old = prev_metrics["oldest_wait"] - curr_metrics["oldest_wait"]
+
+        if not self._ema_inited:
+            # warmup: first call initializes EMA, return a small neutral reward
+            self._ema_inited = True
+            _ = self._z("td", td); _ = self._z("mw", d_mean); _ = self._z("ow", d_old)
+            return 0.0
+
+        r = -0.1*self._z("td", td) + 0.5*self._z("mw", d_mean) + 0.3*self._z("ow", d_old)
+        return float(np.clip(r, -1.0, 1.0))
+
 
     def _collect_metrics(self):
         """
