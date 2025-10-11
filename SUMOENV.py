@@ -113,6 +113,8 @@ class SumoTaxiEnv:
             occupied_taxi_id = pickedup_taxi[0]
 
         occupied_taxi_passenger_id = self.LUT_dict[occupied_taxi_id]
+        # print(f"OccupiedTaxi: {self.LUT_dict}")
+        # print(f"OccupiedTaxi: {occupied_taxi_id}")
         # print(f"OccupiedTaxiId: {occupied_taxi_id}")
         # print(f"OccupiedTaxiPassengerId: {occupied_taxi_passenger_id}")
         
@@ -120,8 +122,8 @@ class SumoTaxiEnv:
         if ret:
             taxi_dest_edge, taxi_dest_pos = ret
         else:
-            taxi_dest_edge = traci.vehicle.getRoadID(occupied_taxi_passenger_id)
-            taxi_dest_pos = traci.vehicle.getLanePosition(occupied_taxi_passenger_id)
+            taxi_dest_edge = traci.vehicle.getRoadID(occupied_taxi_id)
+            taxi_dest_pos = traci.vehicle.getLanePosition(occupied_taxi_id)
         idle_taxi_edge = traci.vehicle.getRoadID(idle_taxi)
         idle_taxi_pos = traci.vehicle.getLanePosition(idle_taxi)
         return traci.simulation.getDistanceRoad(idle_taxi_edge, idle_taxi_pos, taxi_dest_edge, taxi_dest_pos)
@@ -161,12 +163,14 @@ class SumoTaxiEnv:
             # print(f"Picked Up taxi: {pickedup_taxi}")
             if occupied_taxi:
                 occupied_taxi = occupied_taxi[0]
-            # use the currently pick passenger taxi
+            # use the currently pick passenger 
             else:
                 occupied_taxi = pickedup_taxi[0]
-            # print(f"Occupied taxi: {occupied_taxi}")
-            # print(f"Passenger id: {self.LUT_dict[occupied_taxi]}")
+            print(f"Occupied taxi: {occupied_taxi}")
+            print(f"Passenger id: {self.LUT_dict}")
             occupied_taxi_passenger_id = self.LUT_dict[occupied_taxi]
+            print(f"Occupied taxi passenger id: {occupied_taxi_passenger_id}")
+            print(f"Destination info for person {self._get_person_destination_info(occupied_taxi_passenger_id)}")
             taxi_dest_edge, _ = self._get_person_destination_info(occupied_taxi_passenger_id)
 
         except IndexError:
@@ -178,6 +182,7 @@ class SumoTaxiEnv:
         finally:
             max_eta = -1
             furthest_req = requests[0]
+            print(f"Taxi dest edge: {taxi_dest_edge}")
             for req in requests:
                 route = traci.simulation.findRoute(taxi_dest_edge, req.fromEdge, vType, routingMode=1)
                 eta = route.travelTime
@@ -240,32 +245,53 @@ class SumoTaxiEnv:
             pass
         
      
-    def _z(self, key, x, beta=0.99):
-        if not self._ema_inited:
-            self._ema[key] = x
-            self._v[key] = (x - self._ema[key])**2 + 1e-4
-            return 0.0
-        mu = self._ema[key]
-        var = self._v[key]
-        z = (x - mu) / (np.sqrt(var) + 1e-6)
-        # update AFTER computing z so current sample doesn’t normalize itself
-        self._ema[key] = beta*mu + (1-beta)*x
-        self._v[key] = beta*var + (1-beta)*(x - self._ema[key])**2
-        return float(np.clip(z, -3.0, 3.0))
+    # def _z(self, key, x, beta=0.99):
+    #     if not self._ema_inited:
+    #         self._ema[key] = x
+    #         self._v[key] = (x - self._ema[key])**2 + 1e-4
+    #         return 0.0
+    #     mu = self._ema[key]
+    #     var = self._v[key]
+    #     z = (x - mu) / (np.sqrt(var) + 1e-6)
+    #     # update AFTER computing z so current sample doesn’t normalize itself
+    #     self._ema[key] = beta*mu + (1-beta)*x
+    #     self._v[key] = beta*var + (1-beta)*(x - self._ema[key])**2
+    #     return float(np.clip(z, -3.0, 3.0))
 
+    # def _compute_reward(self, prev_metrics, curr_metrics):
+    #     td = curr_metrics["time"] - prev_metrics["time"]
+    #     d_mean = prev_metrics["mean_wait"] - curr_metrics["mean_wait"]
+    #     d_old = prev_metrics["oldest_wait"] - curr_metrics["oldest_wait"]
+
+    #     if not self._ema_inited:
+    #         # warmup: first call initializes EMA, return a small neutral reward
+    #         self._ema_inited = True
+    #         _ = self._z("td", td); _ = self._z("mw", d_mean); _ = self._z("ow", d_old)
+    #         return 0.0
+
+    #     r = -0.1*self._z("td", td) + 0.5*self._z("mw", d_mean) + 0.3*self._z("ow", d_old)
+    #     return float(np.clip(r, -1.0, 1.0))
+    
+    
     def _compute_reward(self, prev_metrics, curr_metrics):
-        td = curr_metrics["time"] - prev_metrics["time"]
-        d_mean = prev_metrics["mean_wait"] - curr_metrics["mean_wait"]
-        d_old = prev_metrics["oldest_wait"] - curr_metrics["oldest_wait"]
-
-        if not self._ema_inited:
-            # warmup: first call initializes EMA, return a small neutral reward
-            self._ema_inited = True
-            _ = self._z("td", td); _ = self._z("mw", d_mean); _ = self._z("ow", d_old)
-            return 0.0
-
-        r = -0.1*self._z("td", td) + 0.5*self._z("mw", d_mean) + 0.3*self._z("ow", d_old)
-        return float(np.clip(r, -1.0, 1.0))
+        """
+        MVP reward: negative increase in total waiting time between decision points,
+        plus pickup bonuses.
+        # reward is evaluated after two decision points
+        """
+        # Example:
+        time_diff = curr_metrics["time"] - prev_metrics["time"]
+        mean_wait_decre = prev_metrics["mean_wait"] - curr_metrics["mean_wait"] 
+        oldest_wait_decre = prev_metrics["oldest_wait"] - curr_metrics["oldest_wait"]
+        self.time_diff_list.append(time_diff)
+        self.mean_wait_dec_list.append(mean_wait_decre)
+        self.oldest_wait_dec_list.append(oldest_wait_decre)
+        # normalize the time difference, mean wait decrease and oldest wait decrease
+        time_diff = (time_diff - np.mean(self.time_diff_list)) / (np.std(self.time_diff_list) + 1e-5)
+        mean_wait_decre = (mean_wait_decre - np.mean(self.mean_wait_dec_list)) / (np.std(self.mean_wait_dec_list) + 1e-5)
+        oldest_wait_decre = (oldest_wait_decre - np.mean(self.oldest_wait_dec_list)) / (np.std(self.oldest_wait_dec_list) + 1e-5)
+        r = -0.1 * time_diff + 0.5 * mean_wait_decre + 0.3 * oldest_wait_decre
+        return r
 
 
     def _collect_metrics(self):

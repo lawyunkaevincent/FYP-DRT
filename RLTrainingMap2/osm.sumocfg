@@ -9,6 +9,10 @@
         <net-file value="osm.net.xml"/>
         <route-files value="map.rou.xml,persontripsridecheck.rou.xml"/>
     </input>
+
+    <taxi_device>
+        <device.taxi.dispatch-algorithm value="traci"/>
+    </taxi_device>
     
     <output>
         <tripinfo-output value="tripinfos.xml"/>

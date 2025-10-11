@@ -1,0 +1,55 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<routes xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://sumo.dlr.de/xsd/routes_file.xsd">
+    <person id="0" depart="69.44">
+        <ride from="C2D2" to="A1B1" lines="taxi" /></person>
+    <person id="1" depart="128.61">
+        <ride from="B2A2" to="B1A1" lines="taxi" /></person>
+    <person id="2" depart="288.29">
+        <ride from="C4B4" to="C3C2" lines="taxi" /></person>
+    <person id="3" depart="369.49">
+        <ride from="D2D3" to="A2B2" lines="taxi" /></person>
+    <person id="4" depart="416.58">
+        <ride from="B3C3" to="A1B1" lines="taxi" /></person>
+    <person id="5" depart="440.86">
+        <ride from="B1A1" to="C1B1" lines="taxi" /></person>
+    <person id="6" depart="441.49">
+        <ride from="A1B1" to="A4B4" lines="taxi" /></person>
+    <person id="7" depart="604.56">
+        <ride from="C3B3" to="C1D1" lines="taxi" /></person>
+    <person id="8" depart="671.28">
+        <ride from="B1A1" to="C2C1" lines="taxi" /></person>
+    <person id="9" depart="671.29">
+        <ride from="D1C1" to="A1A2" lines="taxi" /></person>
+    <person id="10" depart="691.84">
+        <ride from="D1C1" to="C3C4" lines="taxi" /></person>
+    <person id="11" depart="857.71">
+        <ride from="B2C2" to="A3B3" lines="taxi" /></person>
+    <person id="12" depart="861.87">
+        <ride from="D3D4" to="B2C2" lines="taxi" /></person>
+    <person id="13" depart="892.59">
+        <ride from="A2B2" to="A2B2" lines="taxi" /></person>
+    <person id="14" depart="948.25">
+        <ride from="D2C2" to="C2C1" lines="taxi" /></person>
+    <person id="15" depart="981.42">
+        <ride from="D1C1" to="C4B4" lines="taxi" /></person>
+    <person id="16" depart="1088.84">
+        <ride from="C1C2" to="D4C4" lines="taxi" /></person>
+    <person id="17" depart="1180.40">
+        <ride from="B3B2" to="C1D1" lines="taxi" /></person>
+    <person id="18" depart="1254.86">
+        <ride from="D1D2" to="C2C3" lines="taxi" /></person>
+    <person id="19" depart="1317.37">
+        <ride from="D2D1" to="C2B2" lines="taxi" /></person>
+    <person id="20" depart="1348.92">
+        <ride from="C3C4" to="A2A1" lines="taxi" /></person>
+    <person id="21" depart="1355.30">
+        <ride from="B1A1" to="B2A2" lines="taxi" /></person>
+    <person id="22" depart="1489.56">
+        <ride from="A2A3" to="B1B2" lines="taxi" /></person>
+    <person id="23" depart="1551.81">
+        <ride from="A2B2" to="B2A2" lines="taxi" /></person>
+    <person id="24" depart="1635.38">
+        <ride from="C2D2" to="B3A3" lines="taxi" /></person>
+    <person id="25" depart="1760.72">
+        <ride from="B3A3" to="B1A1" lines="taxi" /></person>
+</routes>

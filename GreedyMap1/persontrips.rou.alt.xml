@@ -1,0 +1,323 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- generated on 2025-08-27 22:04:05 by Eclipse SUMO duarouter Version 1.24.0
+<duarouterConfiguration xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://sumo.dlr.de/xsd/duarouterConfiguration.xsd">
+
+    <input>
+        <net-file value="map.net.xml"/>
+        <route-files value="persontrips.xml"/>
+    </input>
+
+    <output>
+        <output-file value="persontrips.rou.xml"/>
+    </output>
+
+    <report>
+        <ignore-errors value="true"/>
+    </report>
+
+</duarouterConfiguration>
+-->
+
+<routes xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://sumo.dlr.de/xsd/routes_file.xsd">
+    <person id="0" depart="0.00">
+        <personTrip from="C2D2" to="A1B1" modes="taxi" walkFactor="0.75" costs="258.85"/>
+    </person>
+    <person id="1" depart="1.00">
+        <personTrip from="B2A2" to="B1A1" modes="taxi" walkFactor="0.75" costs="84.70"/>
+    </person>
+    <person id="2" depart="2.00">
+        <personTrip from="C4B4" to="C3C2" modes="taxi" walkFactor="0.75" costs="84.70"/>
+    </person>
+    <person id="3" depart="3.00">
+        <personTrip from="D2D3" to="A2B2" modes="taxi" walkFactor="0.75" costs="258.38"/>
+    </person>
+    <person id="4" depart="4.00">
+        <personTrip from="B3C3" to="A1B1" modes="taxi" walkFactor="0.75" costs="258.85"/>
+    </person>
+    <person id="5" depart="5.00">
+        <personTrip from="B1A1" to="C1B1" modes="taxi" walkFactor="0.75" costs="84.70"/>
+    </person>
+    <person id="6" depart="6.00">
+        <personTrip from="A1B1" to="A4B4" modes="taxi" walkFactor="0.75" costs="260.55"/>
+    </person>
+    <person id="7" depart="7.00">
+        <personTrip from="C3B3" to="C1D1" modes="taxi" walkFactor="0.75" costs="173.69"/>
+    </person>
+    <person id="8" depart="8.00">
+        <personTrip from="B1A1" to="C2C1" modes="taxi" walkFactor="0.75" costs="164.97"/>
+    </person>
+    <person id="9" depart="9.00">
+        <personTrip from="D1C1" to="A1A2" modes="taxi" walkFactor="0.75" costs="260.54"/>
+    </person>
+    <person id="10" depart="10.00">
+        <personTrip from="D1C1" to="C3C4" modes="taxi" walkFactor="0.75" costs="254.41"/>
+    </person>
+    <person id="11" depart="11.00">
+        <personTrip from="B2C2" to="A3B3" modes="taxi" walkFactor="0.75" costs="167.11"/>
+    </person>
+    <person id="12" depart="12.00">
+        <personTrip from="D3D4" to="B2C2" modes="taxi" walkFactor="0.75" costs="251.81"/>
+    </person>
+    <person id="13" depart="13.00">
+        <personTrip from="A2B2" to="A2B2" modes="taxi" walkFactor="0.75" costs="0.00"/>
+    </person>
+    <person id="14" depart="14.00">
+        <personTrip from="D2C2" to="C2C1" modes="taxi" walkFactor="0.75" costs="86.84"/>
+    </person>
+    <person id="15" depart="15.00">
+        <personTrip from="D1C1" to="C4B4" modes="taxi" walkFactor="0.75" costs="332.30"/>
+    </person>
+    <person id="16" depart="16.00">
+        <personTrip from="C1C2" to="D4C4" modes="taxi" walkFactor="0.75" costs="331.49"/>
+    </person>
+    <person id="17" depart="17.00">
+        <personTrip from="B3B2" to="C1D1" modes="taxi" walkFactor="0.75" costs="247.37"/>
+    </person>
+    <person id="18" depart="18.00">
+        <personTrip from="D1D2" to="C2C3" modes="taxi" walkFactor="0.75" costs="174.15"/>
+    </person>
+    <person id="19" depart="19.00">
+        <personTrip from="D2D1" to="C2B2" modes="taxi" walkFactor="0.75" costs="93.42"/>
+    </person>
+    <person id="20" depart="20.00">
+        <personTrip from="C3C4" to="A2A1" modes="taxi" walkFactor="0.75" costs="251.81"/>
+    </person>
+    <person id="21" depart="21.00">
+        <personTrip from="B1A1" to="B2A2" modes="taxi" walkFactor="0.75" costs="84.70"/>
+    </person>
+    <person id="22" depart="22.00">
+        <personTrip from="A2A3" to="B1B2" modes="taxi" walkFactor="0.75" costs="169.40"/>
+    </person>
+    <person id="23" depart="23.00">
+        <personTrip from="A2B2" to="B2A2" modes="taxi" walkFactor="0.75" costs="84.70"/>
+    </person>
+    <person id="24" depart="24.00">
+        <personTrip from="C2D2" to="B3A3" modes="taxi" walkFactor="0.75" costs="180.26"/>
+    </person>
+    <person id="25" depart="25.00">
+        <personTrip from="B3A3" to="B1A1" modes="taxi" walkFactor="0.75" costs="171.54"/>
+    </person>
+    <person id="26" depart="26.00">
+        <personTrip from="B1C1" to="D3D2" modes="taxi" walkFactor="0.75" costs="333.40"/>
+    </person>
+    <person id="27" depart="27.00">
+        <personTrip from="C3B3" to="C2C3" modes="taxi" walkFactor="0.75" costs="80.27"/>
+    </person>
+    <person id="28" depart="28.00">
+        <personTrip from="A4A3" to="C3D3" modes="taxi" walkFactor="0.75" costs="255.65"/>
+    </person>
+    <person id="29" depart="29.00">
+        <personTrip from="A3B3" to="B3B2" modes="taxi" walkFactor="0.75" costs="86.84"/>
+    </person>
+    <person id="30" depart="30.00">
+        <personTrip from="D4D3" to="C2D2" modes="taxi" walkFactor="0.75" costs="253.51"/>
+    </person>
+    <person id="31" depart="31.00">
+        <personTrip from="C1D1" to="C3C2" modes="taxi" walkFactor="0.75" costs="173.68"/>
+    </person>
+    <person id="32" depart="32.00">
+        <personTrip from="D2C2" to="C4D4" modes="taxi" walkFactor="0.75" costs="251.81"/>
+    </person>
+    <person id="33" depart="33.00">
+        <personTrip from="B1A1" to="A1B1" modes="taxi" walkFactor="0.75" costs="87.30"/>
+    </person>
+    <person id="34" depart="34.00">
+        <personTrip from="B2B3" to="B1C1" modes="taxi" walkFactor="0.75" costs="84.70"/>
+    </person>
+    <person id="35" depart="35.00">
+        <personTrip from="B1A1" to="D3D4" modes="taxi" walkFactor="0.75" costs="336.51"/>
+    </person>
+    <person id="36" depart="36.00">
+        <personTrip from="D2D3" to="B2B3" modes="taxi" walkFactor="0.75" costs="173.69"/>
+    </person>
+    <person id="37" depart="37.00">
+        <personTrip from="C3B3" to="B3B2" modes="taxi" walkFactor="0.75" costs="86.84"/>
+    </person>
+    <person id="38" depart="38.00">
+        <personTrip from="D3C3" to="B4B3" modes="taxi" walkFactor="0.75" costs="251.81"/>
+    </person>
+    <person id="39" depart="39.00">
+        <personTrip from="B1C1" to="B1B2" modes="taxi" walkFactor="0.75" costs="0.00"/>
+    </person>
+    <person id="40" depart="40.00">
+        <personTrip from="C1D1" to="B1C1" modes="taxi" walkFactor="0.75" costs="84.70"/>
+    </person>
+    <person id="41" depart="41.00">
+        <personTrip from="C2C1" to="D3C3" modes="taxi" walkFactor="0.75" costs="171.54"/>
+    </person>
+    <person id="42" depart="42.00">
+        <personTrip from="B3B4" to="B1A1" modes="taxi" walkFactor="0.75" costs="178.12"/>
+    </person>
+    <person id="43" depart="43.00">
+        <personTrip from="D4D3" to="C1B1" modes="taxi" walkFactor="0.75" costs="329.44"/>
+    </person>
+    <person id="44" depart="44.00">
+        <personTrip from="A2B2" to="A2A1" modes="taxi" walkFactor="0.75" costs="0.00"/>
+    </person>
+    <person id="45" depart="45.00">
+        <personTrip from="A3A2" to="C2D2" modes="taxi" walkFactor="0.75" costs="260.53"/>
+    </person>
+    <person id="46" depart="46.00">
+        <personTrip from="D1C1" to="B3C3" modes="taxi" walkFactor="0.75" costs="330.31"/>
+    </person>
+    <person id="47" depart="47.00">
+        <personTrip from="A2A3" to="B3B2" modes="taxi" walkFactor="0.75" costs="164.97"/>
+    </person>
+    <person id="48" depart="48.00">
+        <personTrip from="D4D3" to="C1C2" modes="taxi" walkFactor="0.75" costs="329.33"/>
+    </person>
+    <person id="49" depart="49.00">
+        <personTrip from="D4C4" to="D2D1" modes="taxi" walkFactor="0.75" costs="173.24"/>
+    </person>
+    <person id="50" depart="50.00">
+        <personTrip from="A1A2" to="C3D3" modes="taxi" walkFactor="0.75" costs="331.70"/>
+    </person>
+    <person id="51" depart="51.00">
+        <personTrip from="C3C2" to="C1C2" modes="taxi" walkFactor="0.75" costs="173.68"/>
+    </person>
+    <person id="52" depart="52.00">
+        <personTrip from="B1C1" to="C2D2" modes="taxi" walkFactor="0.75" costs="171.54"/>
+    </person>
+    <person id="53" depart="53.00">
+        <personTrip from="A3A2" to="B3C3" modes="taxi" walkFactor="0.75" costs="93.42"/>
+    </person>
+    <person id="54" depart="54.00">
+        <personTrip from="B4A4" to="D3D4" modes="taxi" walkFactor="0.75" costs="251.81"/>
+    </person>
+    <person id="55" depart="55.00">
+        <personTrip from="D2D3" to="B1C1" modes="taxi" walkFactor="0.75" costs="251.81"/>
+    </person>
+    <person id="56" depart="56.00">
+        <personTrip from="C1B1" to="A4A3" modes="taxi" walkFactor="0.75" costs="340.01"/>
+    </person>
+    <person id="57" depart="57.00">
+        <personTrip from="D3C3" to="D2D1" modes="taxi" walkFactor="0.75" costs="84.70"/>
+    </person>
+    <person id="58" depart="58.00">
+        <personTrip from="B2B1" to="C2D2" modes="taxi" walkFactor="0.75" costs="93.42"/>
+    </person>
+    <person id="59" depart="59.00">
+        <personTrip from="C2C3" to="A3B3" modes="taxi" walkFactor="0.75" costs="253.95"/>
+    </person>
+    <person id="60" depart="60.00">
+        <personTrip from="C4C3" to="C1C2" modes="taxi" walkFactor="0.75" costs="258.38"/>
+    </person>
+    <person id="61" depart="61.00">
+        <personTrip from="C4D4" to="C1C2" modes="taxi" walkFactor="0.75" costs="258.38"/>
+    </person>
+    <person id="62" depart="62.00">
+        <personTrip from="A1A2" to="B2B3" modes="taxi" walkFactor="0.75" costs="172.01"/>
+    </person>
+    <person id="63" depart="63.00">
+        <personTrip from="A1A2" to="D3D2" modes="taxi" walkFactor="0.75" costs="338.79"/>
+    </person>
+    <person id="64" depart="64.00">
+        <personTrip from="D2D3" to="D1D2" modes="taxi" walkFactor="0.75" costs="87.30"/>
+    </person>
+    <person id="65" depart="65.00">
+        <personTrip from="B2B1" to="A2A1" modes="taxi" walkFactor="0.75" costs="84.70"/>
+    </person>
+    <person id="66" depart="66.00">
+        <personTrip from="D2D3" to="D3D4" modes="taxi" walkFactor="0.75" costs="84.70"/>
+    </person>
+    <person id="67" depart="67.00">
+        <personTrip from="A2B2" to="B4C4" modes="taxi" walkFactor="0.75" costs="251.81"/>
+    </person>
+    <person id="68" depart="68.00">
+        <personTrip from="A2A3" to="C4C3" modes="taxi" walkFactor="0.75" costs="329.04"/>
+    </person>
+    <person id="69" depart="69.00">
+        <personTrip from="C4C3" to="A3A4" modes="taxi" walkFactor="0.75" costs="251.81"/>
+    </person>
+    <person id="70" depart="70.00">
+        <personTrip from="B4B3" to="C1D1" modes="taxi" walkFactor="0.75" costs="332.12"/>
+    </person>
+    <person id="71" depart="71.00">
+        <personTrip from="B1C1" to="D2D1" modes="taxi" walkFactor="0.75" costs="251.81"/>
+    </person>
+    <person id="72" depart="72.00">
+        <personTrip from="B3C3" to="B1A1" modes="taxi" walkFactor="0.75" costs="171.54"/>
+    </person>
+    <person id="73" depart="73.00">
+        <personTrip from="C1C2" to="C4B4" modes="taxi" walkFactor="0.75" costs="258.38"/>
+    </person>
+    <person id="74" depart="74.00">
+        <personTrip from="A4B4" to="B2B1" modes="taxi" walkFactor="0.75" costs="254.41"/>
+    </person>
+    <person id="75" depart="75.00">
+        <personTrip from="D4D3" to="C3B3" modes="taxi" walkFactor="0.75" costs="172.01"/>
+    </person>
+    <person id="76" depart="76.00">
+        <personTrip from="B4A4" to="C1B1" modes="taxi" walkFactor="0.75" costs="340.79"/>
+    </person>
+    <person id="77" depart="77.00">
+        <personTrip from="A3A2" to="B1A1" modes="taxi" walkFactor="0.75" costs="251.81"/>
+    </person>
+    <person id="78" depart="78.00">
+        <personTrip from="B2C2" to="C2C1" modes="taxi" walkFactor="0.75" costs="86.84"/>
+    </person>
+    <person id="79" depart="79.00">
+        <personTrip from="B1B2" to="B1A1" modes="taxi" walkFactor="0.75" costs="0.00"/>
+    </person>
+    <person id="80" depart="80.00">
+        <personTrip from="A2A3" to="C2D2" modes="taxi" walkFactor="0.75" costs="178.12"/>
+    </person>
+    <person id="81" depart="81.00">
+        <personTrip from="B1A1" to="D3C3" modes="taxi" walkFactor="0.75" costs="336.51"/>
+    </person>
+    <person id="82" depart="82.00">
+        <personTrip from="D2D1" to="A2A3" modes="taxi" walkFactor="0.75" costs="258.39"/>
+    </person>
+    <person id="83" depart="83.00">
+        <personTrip from="B1B2" to="C3C2" modes="taxi" walkFactor="0.75" costs="251.81"/>
+    </person>
+    <person id="84" depart="84.00">
+        <personTrip from="B1A1" to="A3A4" modes="taxi" walkFactor="0.75" costs="251.81"/>
+    </person>
+    <person id="85" depart="85.00">
+        <personTrip from="D3D2" to="C2B2" modes="taxi" walkFactor="0.75" costs="171.54"/>
+    </person>
+    <person id="86" depart="86.00">
+        <personTrip from="B4B3" to="C4D4" modes="taxi" walkFactor="0.75" costs="84.70"/>
+    </person>
+    <person id="87" depart="87.00">
+        <personTrip from="D1C1" to="A4B4" modes="taxi" walkFactor="0.75" costs="343.90"/>
+    </person>
+    <person id="88" depart="88.00">
+        <personTrip from="A2B2" to="B3C3" modes="taxi" walkFactor="0.75" costs="171.54"/>
+    </person>
+    <person id="89" depart="89.00">
+        <personTrip from="B3C3" to="B4B3" modes="taxi" walkFactor="0.75" costs="86.84"/>
+    </person>
+    <person id="90" depart="90.00">
+        <personTrip from="C3D3" to="C3C2" modes="taxi" walkFactor="0.75" costs="0.00"/>
+    </person>
+    <person id="91" depart="91.00">
+        <personTrip from="D4D3" to="A2B2" modes="taxi" walkFactor="0.75" costs="341.59"/>
+    </person>
+    <person id="92" depart="92.00">
+        <personTrip from="B3B4" to="B2C2" modes="taxi" walkFactor="0.75" costs="93.42"/>
+    </person>
+    <person id="93" depart="93.00">
+        <personTrip from="D2D1" to="B1B2" modes="taxi" walkFactor="0.75" costs="251.81"/>
+    </person>
+    <person id="94" depart="94.00">
+        <personTrip from="A4B4" to="B4A4" modes="taxi" walkFactor="0.75" costs="88.54"/>
+    </person>
+    <person id="95" depart="95.00">
+        <personTrip from="B3C3" to="B2A2" modes="taxi" walkFactor="0.75" costs="86.84"/>
+    </person>
+    <person id="96" depart="96.00">
+        <personTrip from="B1B2" to="D3D2" modes="taxi" walkFactor="0.75" costs="329.98"/>
+    </person>
+    <person id="97" depart="97.00">
+        <personTrip from="B4A4" to="D2D1" modes="taxi" walkFactor="0.75" costs="334.22"/>
+    </person>
+    <person id="98" depart="98.00">
+        <personTrip from="C1D1" to="A2A1" modes="taxi" walkFactor="0.75" costs="251.81"/>
+    </person>
+    <person id="99" depart="99.00">
+        <personTrip from="D4D3" to="D2C2" modes="taxi" walkFactor="0.75" costs="173.24"/>
+    </person>
+</routes>

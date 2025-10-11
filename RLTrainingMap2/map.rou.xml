@@ -8,7 +8,6 @@
     <vType id="myTaxi" vClass="taxi" color="yellow">
         <param key="has.taxi.device" value="true"/>
     </vType>
-    <vType id="t_0"/>
     <!-- Vehicles, persons and containers (sorted by depart) -->
     <trip id="t_0" type="myTaxi" depart="0.00" from="53655564#2" to="1279020164">
         <stop lane="53655564#2_0" startPos="10.71" endPos="20.71" duration="60.00" triggered="person"/>

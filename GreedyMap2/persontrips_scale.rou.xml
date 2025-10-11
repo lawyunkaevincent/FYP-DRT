@@ -1,0 +1,67 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<routes xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://sumo.dlr.de/xsd/routes_file.xsd">
+    <person id="6" depart="50.15">
+        <ride from="221195029#2" to="-1213201223#2" lines="taxi" /></person>
+    <person id="27" depart="98.45">
+        <ride from="-608512837#0" to="-603298521" lines="taxi" /></person>
+    <person id="47" depart="199.66">
+        <ride from="53655526#2" to="263461647#2" lines="taxi" /></person>
+    <person id="57" depart="243.85">
+        <ride from="608523804#0" to="-210994277#0" lines="taxi" /></person>
+    <person id="58" depart="408.03">
+        <ride from="1226370654" to="-1218344727#0" lines="taxi" /></person>
+    <person id="68" depart="473.39">
+        <ride from="-603234069#0" to="1341231696#1" lines="taxi" /></person>
+    <person id="78" depart="564.60">
+        <ride from="-1213201223#5" to="-53655560#3" lines="taxi" /></person>
+    <person id="85" depart="597.22">
+        <ride from="221195044#3" to="202503213" lines="taxi" /></person>
+    <person id="87" depart="715.18">
+        <ride from="-603234070#1" to="210994243#7" lines="taxi" /></person>
+    <person id="94" depart="817.21">
+        <ride from="603234068#1" to="-102566012#3" lines="taxi" /></person>
+    <person id="107" depart="827.85">
+        <ride from="603234064#1" to="53655492#0" lines="taxi" /></person>
+    <person id="112" depart="880.17">
+        <ride from="102562074#2" to="-53655524#0" lines="taxi" /></person>
+    <person id="116" depart="1001.62">
+        <ride from="884054432#0" to="-997332953#1" lines="taxi" /></person>
+    <person id="127" depart="1055.59">
+        <ride from="-210994295#1" to="-211071518#1" lines="taxi" /></person>
+    <person id="132" depart="1215.18">
+        <ride from="608187209#1" to="210994279#1" lines="taxi" /></person>
+    <person id="145" depart="1238.10">
+        <ride from="603234065#1" to="53655515#2" lines="taxi" /></person>
+    <person id="157" depart="1350.74">
+        <ride from="1157697967" to="202530077#0" lines="taxi" /></person>
+    <person id="188" depart="1449.19">
+        <ride from="608177867" to="211071521#3" lines="taxi" /></person>
+    <person id="189" depart="1519.10">
+        <ride from="608512799#1" to="210994236" lines="taxi" /></person>
+    <person id="193" depart="1574.30">
+        <ride from="53655492#7" to="-1369862403" lines="taxi" /></person>
+    <person id="207" depart="1612.40">
+        <ride from="-608177866" to="-608528544" lines="taxi" /></person>
+    <person id="210" depart="1732.80">
+        <ride from="-210994252#0" to="-608187180" lines="taxi" /></person>
+    <person id="211" depart="1855.39">
+        <ride from="-211071545#2" to="-608512841" lines="taxi" /></person>
+    <person id="279" depart="1891.77">
+        <ride from="211071590#1" to="1116728179-AddedOffRampEdge" lines="taxi" /></person>
+    <person id="280" depart="1942.95">
+        <ride from="1120344216" to="-53746020#0" lines="taxi" /></person>
+    <person id="282" depart="2012.52">
+        <ride from="-608512823#1" to="813269878" lines="taxi" /></person>
+    <person id="294" depart="2158.31">
+        <ride from="221195044#0" to="210994295#0" lines="taxi" /></person>
+    <person id="295" depart="2257.42">
+        <ride from="-53655546#0" to="53655515#1" lines="taxi" /></person>
+    <person id="304" depart="2288.80">
+        <ride from="-53655528#2" to="1157697968" lines="taxi" /></person>
+    <person id="339" depart="2331.37">
+        <ride from="992117732" to="221195029#3" lines="taxi" /></person>
+    <person id="358" depart="2493.23">
+        <ride from="210983279" to="371128542#0" lines="taxi" /></person>
+    <person id="364" depart="2541.92">
+        <ride from="608187203#1" to="53655560#21" lines="taxi" /></person>
+</routes>
