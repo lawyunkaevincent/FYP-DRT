@@ -18,16 +18,20 @@ def main():
     # --- checkpointing options ---
     parser.add_argument("--load-ckpt", type=str, default=None,
                         help="Path to an existing checkpoint to resume from")
-    parser.add_argument("--save-ckpt", type=str, default="checkpoints/latest_sarsa.pkl",
+    parser.add_argument("--save-ckpt", type=str, default="checkpoints_map1/latest_sarsa.pkl",
                         help="Where to save rolling/latest checkpoints")
     parser.add_argument("--save-every", type=int, default=10,
                         help="Save latest checkpoint every N episodes (0/None disables)")
-    parser.add_argument("--best-ckpt", type=str, default="checkpoints/best_sarsa.pkl",
+    parser.add_argument("--best-ckpt", type=str, default="checkpoints_map1/best_sarsa.pkl",
                         help="Where to save the best policy (highest episode reward)")
     parser.add_argument("--epsilon-start", type=float, default=None, help="Initial epsilon for decay")
     parser.add_argument("--epsilon-end", type=float, default=0.01, help="Final epsilon for decay")
     parser.add_argument("--epsilon-decay", type=str, default=None,
         help="Decay type: float (e.g. 0.99 for exponential) or int (e.g. 100 episodes linear)")
+        # --- logging options ---
+    parser.add_argument("--reward-file", type=str, default="reward.txt",
+                        help="Path to the reward log file")
+
 
 
     args = parser.parse_args()
@@ -66,7 +70,7 @@ def main():
     save_every = args.save_every if args.save_every and args.save_every > 0 else None
     trainer = SarsaTrainer(
         epsilon=args.epsilon,
-        log_file="reward.txt",
+        log_file=args.reward_file,
         save_every=save_every,
         ckpt_path=args.save_ckpt if save_every else None,
         best_ckpt_path=args.best_ckpt,

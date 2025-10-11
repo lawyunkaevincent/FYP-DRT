@@ -3,12 +3,12 @@ import random
 
 # === Settings ===
 DEPART_RULE = "random"  # options: "random", "scale", "sequential"
-RANDOM_RANGE = (50, 200)  # seconds if using random
-SCALE_FACTOR = 60.0      # if using scale
-SEQUENTIAL_OFFSET = 5   # if using sequential (each +5s)
+RANDOM_RANGE = (0, 100)  # seconds if using random
+SCALE_FACTOR = 80.0      # if using scale
+SEQUENTIAL_OFFSET = 10   # if using sequential (each +5s)
 
-master_xml = r"D:\6Sumo\RLTrainingMap1\persontrips.xml"
-generated_xml = r"D:\6Sumo\RLTrainingMap1\persontrips.rou.xml"
+master_xml = r"D:\\6Sumo\\RLTesting\\RLTrainingMap2\\persontrips.xml"
+generated_xml = r"D:\\6Sumo\\RLTesting\\RLTrainingMap2\\persontripsridecheck.rou.xml"
 
 # === Load files ===
 tree_ref = ET.parse(master_xml)       # master (personTrip)
@@ -31,9 +31,9 @@ def update_depart(old, pid):
 # === Process persons ===
 for p_ref, p_walk in zip(root_ref.findall("person"), root_walk.findall("person")):
     pid = int(p_ref.get("id"))
-    print(pid)
+    # print(pid)
     old_depart = float(p_ref.get("depart"))
-    print(old_depart)
+    print(f"old_depart: {old_depart}, pid: {pid}")
     new_depart = update_depart(old_depart, pid)
 
     # --- Update depart in BOTH files ---
@@ -56,8 +56,8 @@ for p_ref, p_walk in zip(root_ref.findall("person"), root_walk.findall("person")
         p_walk.append(ride)
 
 # === Save outputs ===
-master_xml = r"D:\6Sumo\RLTrainingMap1\persontrips_scale.xml"
-generated_xml = r"D:\6Sumo\RLTrainingMap1\persontrips_scale.rou.xml"
+master_xml = r"D:\\6Sumo\\RLTesting\\RLTrainingMap2\\persontrips_scale.xml"
+generated_xml = r"D:\\6Sumo\\RLTesting\\RLTrainingMap2\\persontrips_scale.rou.xml"
 tree_ref.write(master_xml, encoding="UTF-8", xml_declaration=True)
 tree_walk.write(generated_xml, encoding="UTF-8", xml_declaration=True)
 

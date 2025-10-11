@@ -10,7 +10,7 @@ import matplotlib.pyplot as plt
 # === Config ===
 MA_WINDOW = 40  # <-- change this if you want a different MA window
 
-LOG_FILE = "reward.txt"
+LOG_FILE = "reward_map2.txt"
 LINE_RE = re.compile(
     r"Episode\s+(?P<ep>\d+)"
     r"(?:,\s*epsilon=(?P<eps>[-+]?\d*\.?\d+))?"
