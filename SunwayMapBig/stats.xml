@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- generated on 2026-03-06T22:05:45.723453+08:00 by Eclipse SUMO GUI 1.26.0
+<sumoConfiguration xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://sumo.dlr.de/xsd/sumoConfiguration.xsd">
+
+    <input>
+        <net-file value="D:\S2W1\SunwayMapBig\osm.net.xml"/>
+        <route-files value="D:\S2W1\SunwayMapBig\requests.rou.xml,D:\S2W1\SunwayMapBig\taxi_demand.rou.xml"/>
+        <additional-files value="D:\S2W1\SunwayMapBig\output.add.xml"/>
+    </input>
+
+    <output>
+        <tripinfo-output value="D:\S2W1\SunwayMapBig\tripinfos.xml"/>
+        <statistic-output value="D:\S2W1\SunwayMapBig\stats.xml"/>
+    </output>
+
+    <processing>
+        <ignore-route-errors value="true"/>
+        <tls.actuated.jam-threshold value="30"/>
+    </processing>
+
+    <routing>
+        <device.rerouting.adaptation-steps value="18"/>
+        <device.rerouting.adaptation-interval value="10"/>
+    </routing>
+
+    <report>
+        <verbose value="true"/>
+        <duration-log.statistics value="true"/>
+        <no-step-log value="true"/>
+    </report>
+
+    <taxi_device>
+        <device.taxi.dispatch-algorithm value="greedyClosest"/>
+    </taxi_device>
+
+    <gui_only>
+        <gui-settings-file value="D:\S2W1\SunwayMapBig\osm.view.xml"/>
+    </gui_only>
+
+</sumoConfiguration>
+-->
+
+<statistics xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://sumo.dlr.de/xsd/statistic_file.xsd">
+    <performance clockBegin="117735.95" clockEnd="118691.52" clockDuration="955.56" traciDuration="6.26" realTimeFactor="4.46" vehicleUpdatesPerSecond="4.43" personUpdatesPerSecond="81.00" begin="0.00" end="4261.00" duration="4261.00"/>
+    <vehicles loaded="1" inserted="1" running="0" waiting="0"/>
+    <teleports total="1" jam="0" yield="0" wrongLane="1"/>
+    <safety collisions="0" emergencyStops="0" emergencyBraking="0"/>
+    <persons loaded="36" running="0" jammed="0"/>
+    <personTeleports total="1" abortWait="0" wrongDest="1"/>
+    <vehicleTripStatistics count="1" routeLength="51843.85" speed="12.24" duration="4234.00" waitingTime="524.00" timeLoss="1121.90" departDelay="0.00" departDelayWaiting="-1.00" totalTravelTime="4234.00" totalDepartDelay="0.00"/>
+    <pedestrianStatistics number="0" routeLength="0.00" duration="0.00" timeLoss="0.00"/>
+    <rideStatistics number="36" waitingTime="168.19" routeLength="910.06" duration="74.28" bus="0" train="0" taxi="7" bike="0" aborted="29"/>
+    <transportStatistics number="0"/>
+</statistics>

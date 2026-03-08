@@ -1,8 +1,0 @@
-Episode 0, epsilon=1.0000, total reward=-33.76
-Episode 0, epsilon=1.0000, total reward=-29.10
-Episode 1, epsilon=0.9900, total reward=-13.39
-Episode 2, epsilon=0.9801, total reward=-10.97
-Episode 3, epsilon=0.9703, total reward=-7.30
-Episode 4, epsilon=0.9606, total reward=-6.52
-Episode 5, epsilon=0.9510, total reward=-4.52
-Episode 6, epsilon=0.9415, total reward=-5.79

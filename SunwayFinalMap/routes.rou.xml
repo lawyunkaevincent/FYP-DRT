@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- generated on 2026-03-07 22:08:18.263285 by Eclipse SUMO randomTrips.py v1_26_0+0000-fa7df22d7f1
+<configuration>
+    <net-file value="osm.net.xml"/>
+    <output-trip-file value="requests.rou.xml"/>
+    <personrides value="taxi"/>
+    <edge-permission value="taxi"/>
+    <period value="100.0"/>
+</configuration>
+-->
+
+<!-- generated on 2026-03-07T22:08:18.143654+08:00 by Eclipse SUMO duarouter 1.26.0
+<duarouterConfiguration xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://sumo.dlr.de/xsd/duarouterConfiguration.xsd">
+
+    <input>
+        <net-file value="osm.net.xml"/>
+        <route-files value="requests.rou.xml"/>
+    </input>
+
+    <output>
+        <output-file value="routes.rou.xml"/>
+        <alternatives-output value="NUL"/>
+    </output>
+
+    <time>
+        <begin value="0.0"/>
+        <end value="3600.0"/>
+    </time>
+
+    <report>
+        <no-warnings value="true"/>
+        <ignore-errors value="true"/>
+        <no-step-log value="true"/>
+    </report>
+
+</duarouterConfiguration>
+-->
+
+<routes xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://sumo.dlr.de/xsd/routes_file.xsd">
+    <person id="0" depart="0.00">
+        <ride from="25721494" to="-1218672122#3" lines="taxi"/>
+    </person>
+    <person id="1" depart="100.00">
+        <ride from="-53655546#10" to="-53633168#1" lines="taxi"/>
+    </person>
+    <person id="2" depart="200.00">
+        <ride from="53561440#6" to="410537372" lines="taxi"/>
+    </person>
+    <person id="3" depart="300.00">
+        <ride from="610169774#5" to="-25718075#0" lines="taxi"/>
+    </person>
+    <person id="4" depart="400.00">
+        <ride from="1161593037#0" to="-1264386184" lines="taxi"/>
+    </person>
+    <person id="5" depart="500.00">
+        <ride from="-53633158#5" to="136979491#2" lines="taxi"/>
+    </person>
+    <person id="6" depart="600.00">
+        <ride from="-1253169948#3" to="-53561448#3" lines="taxi"/>
+    </person>
+    <person id="7" depart="700.00">
+        <ride from="272078615#0" to="187373422#5" lines="taxi"/>
+    </person>
+    <person id="8" depart="800.00">
+        <ride from="-53633161#0" to="25718014#6" lines="taxi"/>
+    </person>
+    <person id="9" depart="900.00">
+        <ride from="53655498#1" to="-103755047#1" lines="taxi"/>
+    </person>
+    <person id="10" depart="1000.00">
+        <ride from="53655492#6" to="52218202" lines="taxi"/>
+    </person>
+    <person id="11" depart="1100.00">
+        <ride from="-884011753#7" to="-371139410#9" lines="taxi"/>
+    </person>
+    <person id="12" depart="1200.00">
+        <ride from="777817662#1" to="-856462995#4" lines="taxi"/>
+    </person>
+    <person id="13" depart="1300.00">
+        <ride from="-25718341#3" to="-25720052#6" lines="taxi"/>
+    </person>
+    <person id="14" depart="1400.00">
+        <ride from="53745808#0" to="25720177#0" lines="taxi"/>
+    </person>
+    <person id="15" depart="1500.00">
+        <ride from="53655495#2" to="53561432" lines="taxi"/>
+    </person>
+    <person id="16" depart="1600.00">
+        <ride from="162530514#0" to="843312061#0" lines="taxi"/>
+    </person>
+    <person id="17" depart="1700.00">
+        <ride from="103754498" to="19345103#1" lines="taxi"/>
+    </person>
+    <person id="18" depart="1800.00">
+        <ride from="53655551" to="25720722#4" lines="taxi"/>
+    </person>
+    <person id="19" depart="1900.00">
+        <ride from="53746064#2" to="24846591" lines="taxi"/>
+    </person>
+    <person id="20" depart="2000.00">
+        <ride from="53561353" to="-136979491#7" lines="taxi"/>
+    </person>
+    <person id="21" depart="2100.00">
+        <ride from="-53633177#0" to="-53658196#3" lines="taxi"/>
+    </person>
+    <person id="22" depart="2200.00">
+        <ride from="-25717715#2" to="-53633184#2" lines="taxi"/>
+    </person>
+    <person id="23" depart="2300.00">
+        <ride from="-25720265#1" to="-53655547#7" lines="taxi"/>
+    </person>
+    <person id="24" depart="2400.00">
+        <ride from="25721253#5" to="102678336#6" lines="taxi"/>
+    </person>
+    <person id="25" depart="2500.00">
+        <ride from="102756669" to="-53561472#11" lines="taxi"/>
+    </person>
+    <person id="26" depart="2600.00">
+        <ride from="-53655513#1" to="776571728" lines="taxi"/>
+    </person>
+    <person id="27" depart="2700.00">
+        <ride from="269561365" to="25720503#1" lines="taxi"/>
+    </person>
+    <person id="28" depart="2800.00">
+        <ride from="-53561362#2" to="53561430#2" lines="taxi"/>
+    </person>
+    <person id="29" depart="2900.00">
+        <ride from="-53561351#1" to="103755049" lines="taxi"/>
+    </person>
+    <person id="30" depart="3000.00">
+        <ride from="884065017#0" to="25721516#0" lines="taxi"/>
+    </person>
+    <person id="31" depart="3100.00">
+        <ride from="210983279" to="495024962" lines="taxi"/>
+    </person>
+    <person id="32" depart="3200.00">
+        <ride from="537110550#1" to="53633183#0" lines="taxi"/>
+    </person>
+    <person id="33" depart="3300.00">
+        <ride from="-53633178#2" to="-1277836489#2" lines="taxi"/>
+    </person>
+    <person id="34" depart="3400.00">
+        <ride from="-608512851" to="-53655514#1" lines="taxi"/>
+    </person>
+    <person id="35" depart="3500.00">
+        <ride from="-53561472#9" to="776830926" lines="taxi"/>
+    </person>
+</routes>
