@@ -1,13 +1,10 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Dict, List, Set, Iterable, Optional
 import xml.etree.ElementTree as ET
 import json
 import sumolib
-from pathlib import Path
 
-from dataclasses import dataclass, field
-from typing import List
 
 @dataclass
 class EdgeStats:
@@ -41,10 +38,14 @@ class SumoConnectivityChecker:
         vclass: str = "taxi",
         allow_internal: bool = False,
     ) -> None:
-        self.net_file = Path(net_file)
+        self.net_file = Path(net_file).resolve()
         self.vclass = vclass
         self.allow_internal = allow_internal
-        self.net = sumolib.net.readNet(str(self.net_file))
+
+        if not self.net_file.exists():
+            raise FileNotFoundError(f"Network file not found: {self.net_file}")
+
+        self.net = sumolib.net.readNet(self.net_file.as_posix())
 
     def is_valid_edge(self, edge) -> bool:
         edge_id = edge.getID()
@@ -70,6 +71,7 @@ class SumoConnectivityChecker:
         return sorted(edge_ids)
 
     def get_edges_from_route_file(self, route_file: str) -> List[str]:
+        route_file = Path(route_file).resolve()
         tree = ET.parse(route_file)
         root = tree.getroot()
         edge_ids: Set[str] = set()
@@ -127,45 +129,8 @@ class SumoConnectivityChecker:
         return results
 
     @staticmethod
-    def rank_bad_edges(results: Dict[str, EdgeStats]) -> List[EdgeStats]:
-        return sorted(
-            results.values(),
-            key=lambda x: (x.unreachable_count, x.edge_id),
-            reverse=True,
-        )
-
-    @staticmethod
-    def flagged_edges(
-        results: Dict[str, EdgeStats],
-        min_unreachable: Optional[int] = None,
-        unreachable_ratio: Optional[float] = None,
-        total_candidates: Optional[int] = None,
-    ) -> Set[str]:
-        flagged: Set[str] = set()
-
-        for edge_id, stats in results.items():
-            flag = False
-
-            if min_unreachable is not None and stats.unreachable_count >= min_unreachable:
-                flag = True
-
-            if (
-                unreachable_ratio is not None
-                and total_candidates is not None
-                and total_candidates > 1
-            ):
-                ratio = stats.unreachable_count / (total_candidates - 1)
-                if ratio >= unreachable_ratio:
-                    flag = True
-
-            if flag:
-                flagged.add(edge_id)
-
-        return flagged
-
-    @staticmethod
     def save_json(results: Dict[str, EdgeStats], output_file: str, total_candidates: int) -> None:
-
+        output_path = Path(output_file).resolve()
         data = {
             "total_candidates": total_candidates,
             "results": {
@@ -174,13 +139,14 @@ class SumoConnectivityChecker:
             }
         }
 
-        with open(output_file, "w", encoding="utf-8") as f:
+        with open(output_path, "w", encoding="utf-8") as f:
             json.dump(data, f, indent=2)
 
     @staticmethod
     def load_json(input_file: str) -> tuple[Dict[str, EdgeStats], int]:
+        input_path = Path(input_file).resolve()
 
-        with open(input_file, "r", encoding="utf-8") as f:
+        with open(input_path, "r", encoding="utf-8") as f:
             data = json.load(f)
 
         total_candidates = data["total_candidates"]
@@ -198,7 +164,10 @@ class SumoConnectivityChecker:
         output_route_file: str,
         bad_edges: Set[str]
     ) -> None:
-        tree = ET.parse(input_route_file)
+        input_path = Path(input_route_file).resolve()
+        output_path = Path(output_route_file).resolve()
+
+        tree = ET.parse(input_path)
         root = tree.getroot()
 
         for person in list(root.findall("person")):
@@ -212,28 +181,32 @@ class SumoConnectivityChecker:
             if from_edge in bad_edges or to_edge in bad_edges:
                 root.remove(person)
 
-        tree.write(output_route_file, encoding="utf-8", xml_declaration=True)
-        
-        
+        tree.write(output_path, encoding="utf-8", xml_declaration=True)
+
+
 if __name__ == "__main__":
-    # code for first run, to generate connectivity report
-    # base_dir = Path.cwd()
+    base_dir = Path.cwd()
+    net_path = (base_dir / "map.net.xml").resolve()
+    report_path = (base_dir / "connectivity_report.json").resolve()
 
-    # checker = SumoConnectivityChecker(
-    #     net_file=str(base_dir / "osm.net.xml"),
-    #     vclass="taxi",
-    #     allow_internal=False,
-    # )
+    print("Running from:", base_dir)
+    print("Net path:", net_path)
 
-    # edge_ids = checker.get_edges_from_net()
-    # results = checker.analyze(edge_ids)
+    checker = SumoConnectivityChecker(
+        net_file=net_path.as_posix(),
+        vclass="taxi",
+        allow_internal=False,
+    )
 
-    # checker.save_json(
-    #     results,
-    #     str(base_dir / "connectivity_report.json"),
-    #     total_candidates=len(edge_ids),
-    # )
+    edge_ids = checker.get_edges_from_net()
+    results = checker.analyze(edge_ids)
 
+    checker.save_json(
+        results,
+        str(report_path),
+        total_candidates=len(edge_ids),
+    )
+    
     # code for analyzing using connectivity report
     base_dir = Path.cwd()
 

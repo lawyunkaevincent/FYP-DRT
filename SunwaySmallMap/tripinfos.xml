@@ -145,3 +145,4 @@
     <personinfo id="35" depart="3500.00" type="DEFAULT_PEDTYPE" speedFactor="0.97" duration="8780.00" waitingTime="8645.00" timeLoss="20.80" traveltime="135.00">
         <ride waitingTime="8645.00" vehicle="t_0" depart="12145.00" arrival="12280.00" arrivalPos="6.06" duration="135.00" routeLength="983.60" timeLoss="20.80"/>
     </personinfo>
+</tripinfos>
