@@ -127,8 +127,8 @@ class Request:
     status: RequestStatus = RequestStatus.PENDING
 
     # --- service constraints ---
-    max_wait:        float = 300.0   # 5 min default; tune per scenario
-    max_ride_factor: float = 1.5     # actual ride ≤ 1.5× direct travel time
+    max_wait:        float = 600.0   # 10 min default; tune per scenario
+    max_ride_factor: float = 2     # actual ride ≤ 2× direct travel time
 
     # --- derived helpers ---
     def waiting_time(self, now: float) -> float:

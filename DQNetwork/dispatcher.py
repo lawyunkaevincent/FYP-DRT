@@ -187,6 +187,128 @@ def _eligible_taxis_for_tick(
     return set(taxi_plans.keys())
 
 
+def enumerate_all_raw_candidates(
+    request: Request,
+    taxi_plans: dict[str, TaxiPlan],
+    now: float,
+    eligible_taxi_ids: set[str] | None = None,
+) -> list[CandidateInsertion]:
+    """
+    Debug-only enumerator:
+    returns ALL insertion combinations that satisfy only:
+      - taxi is eligible
+      - do_idx > pu_idx
+    No capacity / max-wait / ride-time / delay constraints are applied.
+    """
+    if eligible_taxi_ids is None:
+        eligible_taxi_ids = set(taxi_plans.keys())
+
+    raw_candidates: list[CandidateInsertion] = []
+
+    active_vehicle_ids = set(traci.vehicle.getIDList())
+
+    for taxi_id, plan in taxi_plans.items():
+        if taxi_id not in eligible_taxi_ids:
+            continue
+        if taxi_id not in active_vehicle_ids:
+            continue
+
+        try:
+            vtype = traci.vehicle.getTypeID(taxi_id)
+        except traci.TraCIException:
+            continue
+
+        n = len(plan.stops)
+
+        # use the same freeze rule as your real generator
+        if n == 0:
+            frozen_prefix = 0
+        elif plan.stops[0].stop_type == StopType.DROPOFF:
+            frozen_prefix = 0
+        else:
+            frozen_prefix = 1
+
+        for pu_idx in range(frozen_prefix, n + 1):
+            for do_idx in range(pu_idx + 1, n + 2):
+                pu_stop = Stop(
+                    StopType.PICKUP,
+                    request.request_id,
+                    request.person_id,
+                    request.from_edge,
+                )
+                do_stop = Stop(
+                    StopType.DROPOFF,
+                    request.request_id,
+                    request.person_id,
+                    request.to_edge,
+                )
+
+                new_stops = (
+                    plan.stops[:pu_idx]
+                    + [pu_stop]
+                    + plan.stops[pu_idx:do_idx - 1]
+                    + [do_stop]
+                    + plan.stops[do_idx - 1:]
+                )
+
+                etas = _estimate_eta_chain(plan.current_edge, new_stops, vtype, now)
+
+                pu_eta = etas[new_stops.index(pu_stop)] if etas else 0.0
+                do_eta = etas[new_stops.index(do_stop)] if etas else 0.0
+                added_route_time = max(0.0, etas[-1] - now) if etas else 0.0
+
+                for stop_obj, eta_val in zip(new_stops, etas):
+                    stop_obj.eta = eta_val
+
+                raw_candidates.append(
+                    CandidateInsertion(
+                        request_id=request.request_id,
+                        taxi_id=taxi_id,
+                        pickup_index=pu_idx,
+                        dropoff_index=do_idx,
+                        resulting_stops=new_stops,
+                        added_route_time=added_route_time,
+                        pickup_eta_new=pu_eta,
+                        dropoff_eta_new=do_eta,
+                        max_existing_delay=0.0,
+                        avg_existing_delay=0.0,
+                        is_feasible=True,   # debug only; means "enumerated", not "validated"
+                    )
+                )
+
+    return raw_candidates
+
+
+def _print_all_raw_candidates(
+    candidates: list[CandidateInsertion],
+    request: Request,
+    now: float,
+) -> None:
+    _log(
+        f"\n  ┌─ ALL RAW CANDIDATES for request {request.request_id}"
+        f" (person {request.person_id}) waited {request.waiting_time(now):.1f}s ─┐"
+    )
+
+    if not candidates:
+        _log("  │  (none)")
+        _log("  └" + "─" * 70)
+        return
+
+    for rank, c in enumerate(candidates, 1):
+        route_preview = " -> ".join(
+            f"{'PU' if s.stop_type == StopType.PICKUP else 'DO'}({s.request_id})"
+            for s in c.resulting_stops
+        )
+        _log(
+            f"  │  #{rank:<2} taxi={c.taxi_id:>6}  "
+            f"pu_idx={c.pickup_index}  do_idx={c.dropoff_index}  "
+            f"pu_eta={c.pickup_eta_new:7.1f}s  "
+            f"route={route_preview}"
+        )
+
+    _log("  └" + "─" * 70)
+
+
 def generate_candidates(
     request: Request,
     taxi_plans: dict[str, TaxiPlan],
@@ -233,7 +355,16 @@ def generate_candidates(
 
         # Freeze the very first committed stop for taxis that already have a
         # route. New insertions may only affect the suffix after that point.
-        frozen_prefix = 1 if n > 0 else 0
+        # More permissive freeze rule:
+        # - no stops          -> free insertion anywhere
+        # - first stop DROP   -> allow inserting before it
+        # - first stop PICKUP -> keep the first stop frozen for stability
+        if n == 0:
+            frozen_prefix = 0
+        elif plan.stops[0].stop_type == StopType.DROPOFF:
+            frozen_prefix = 0
+        else:
+            frozen_prefix = 1
 
         # Baseline concurrent count = passengers already onboard with no
         # PICKUP stop remaining (they are in the taxi right now).
@@ -886,6 +1017,15 @@ class HeuristicDispatcher:
         """
         request_lookup = _build_request_lookup_by_res_id(self.requests)
         eligible_taxis = getattr(self, "_eligible_taxis_this_tick", set())
+        
+        raw_candidates = enumerate_all_raw_candidates(
+            request,
+            self.taxi_plans,
+            now,
+            eligible_taxi_ids=eligible_taxis,
+        )
+        _print_all_raw_candidates(raw_candidates, request, now)
+
         candidates = generate_candidates(
             request, self.taxi_plans, self.requests, now,
             eligible_taxi_ids=eligible_taxis,
