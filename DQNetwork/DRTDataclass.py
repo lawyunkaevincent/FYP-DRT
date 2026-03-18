@@ -243,7 +243,7 @@ class TaxiPlan:
     current_y:    float = 0.0
 
     # --- capacity ---
-    capacity:      int = 2
+    capacity:      int = 10
     onboard_count: int = 0
 
     # --- status ---
