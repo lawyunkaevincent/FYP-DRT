@@ -20,7 +20,7 @@
         from="X" to="X" gives a valid minimal route that dispatchTaxi
         can fully override to reach any pickup/dropoff in the network.
     -->
-    <trip id="t_0" type="myTaxi" depart="10.00" from="A3A2" to="A3A2"/>
-    <trip id="t_1" type="myTaxi" depart="10.00" from="D2D3" to="D2D3"/>
+    <trip id="t_0" type="myTaxi" depart="0.00" from="A3A2" to="A3A2"/>
+    <trip id="t_1" type="myTaxi" depart="0.00" from="D2D3" to="D2D3"/>
 
 </routes>

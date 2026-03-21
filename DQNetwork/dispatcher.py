@@ -371,6 +371,7 @@ def generate_candidates(
         onboard_req_ids_in_stops = {
             s.request_id for s in plan.stops if s.stop_type == StopType.PICKUP
         }
+        # passenger inside the taxi now
         baseline_onboard = sum(
             1 for rid in plan.onboard_request_ids
             if rid not in onboard_req_ids_in_stops
@@ -404,12 +405,14 @@ def generate_candidates(
                     concurrent += 1 if s.stop_type == StopType.PICKUP else -1
                     peak = max(peak, concurrent)
                 if peak > plan.capacity:
+                    # _log(f"TRIGGER PEAK")
                     continue
 
                 # ── 2. New passenger pickup wait ───────────────────────────
                 pu_idx_in_new = new_stops.index(pu_stop)
                 pu_eta = etas[pu_idx_in_new]
                 if pu_eta - request.request_time > req_max_wait:
+                    # _log(f"TRIGGER PICKUP WAIT")
                     continue
 
                 # ── 3. New passenger ride time ─────────────────────────────
@@ -418,6 +421,7 @@ def generate_candidates(
                 actual_ride = do_eta - pu_eta
                 if request.direct_travel_time > 0:
                     if actual_ride > req_max_ride_factor * request.direct_travel_time:
+                        _log(f"Candidate rejected NEW REQ {request.request_id} on taxi {taxi_id}: \n ride time {actual_ride:.1f}s > {req_max_ride_factor} * {request.direct_travel_time:.1f} \n PU idx={pu_idx} DO idx={do_idx}\nTAXI STOPS: {new_stops}")
                         continue
 
                 # ── 4. Existing passenger constraints ──────────────────────
@@ -444,6 +448,7 @@ def generate_candidates(
                             )
                             if pu_new_eta is not None:
                                 if etas[i] - pu_new_eta > getattr(r, "max_ride_factor", max_ride_factor) * r.direct_travel_time:
+                                    _log(f"Candidate rejected BECAUSE EXISTING REQ VIOLATION: {etas[i] - pu_new_eta} > {getattr(r, 'max_ride_factor', max_ride_factor) * r.direct_travel_time}")
                                     feasible = False
                                     break
                     max_existing_delay = max(max_existing_delay, delay)
@@ -592,9 +597,10 @@ def _refresh_taxi_plans(taxi_plans: dict[str, TaxiPlan]) -> None:
             continue   # taxi left the sim — skip silently
         try:
             plan.current_edge = traci.vehicle.getRoadID(taxi_id)
-            x, y = traci.vehicle.getPosition(taxi_id)
-            plan.current_x = x
-            plan.current_y = y
+            # x, y = traci.vehicle.getPosition(taxi_id)
+            # plan.current_x = x
+            # plan.current_y = y
+            # _log(f"Updated taxi {taxi_id} position: {plan.current_edge} x={x:.1f} y={y:.1f}")
         except traci.TraCIException:
             pass
 
@@ -621,6 +627,7 @@ def _sync_onboard(
             continue
         try:
             persons_in_taxi = set(traci.vehicle.getPersonIDList(taxi_id))
+            # _log(f"[PERSON IN TAXI] {taxi_id} {persons_in_taxi}")
         except traci.TraCIException:
             persons_in_taxi = set()
         # intersect with requests we know about to get tracked onboard set
@@ -661,8 +668,9 @@ def _detect_events(
     new_arrivals  = list(current_req_ids  - prev_known_req_ids)
     new_pickups   = list(current_onboard  - prev_onboard_ids)
     new_dropoffs  = list(current_complete - prev_completed_ids)
-
     had_event = bool(new_arrivals or new_pickups or new_dropoffs)
+    if had_event:
+        _log(f"New arrivals: {new_arrivals}, pickups: {new_pickups}, dropoffs: {new_dropoffs}")
     return had_event, new_arrivals, new_pickups, new_dropoffs
 
 
@@ -810,8 +818,10 @@ class HeuristicDispatcher:
                 if traci.vehicle.getTypeID(vid).startswith("taxi") or \
                    "taxi" in traci.vehicle.getVehicleClass(vid).lower():
                     self._register_taxi(vid)
+                    print(vid)
             except traci.TraCIException:
                 pass
+            
         # also probe via fleet API
         for state_int in range(4):
             for vid in traci.vehicle.getTaxiFleet(state_int):
@@ -822,8 +832,8 @@ class HeuristicDispatcher:
         plan = TaxiPlan(taxi_id=taxi_id)
         try:
             plan.current_edge = traci.vehicle.getRoadID(taxi_id)
-            x, y = traci.vehicle.getPosition(taxi_id)
-            plan.current_x, plan.current_y = x, y
+            # x, y = traci.vehicle.getPosition(taxi_id)
+            # plan.current_x, plan.current_y = x, y
             plan.capacity = int(traci.vehicle.getPersonCapacity(taxi_id))
         except traci.TraCIException:
             plan.capacity = 2
@@ -862,6 +872,7 @@ class HeuristicDispatcher:
         # 0 (all) and also walk persons directly as fallback.
         try:
             reservations = traci.person.getTaxiReservations(0)
+
         except Exception:
             reservations = []
 
@@ -938,6 +949,7 @@ class HeuristicDispatcher:
 
         # --- update status for all tracked requests ---
         active_pids = set(traci.person.getIDList())
+        # _log(f"ACTIVE PIDS: {active_pids}")
 
         for pid, req in self.requests.items():
             if req.status == RequestStatus.COMPLETED:
@@ -962,6 +974,7 @@ class HeuristicDispatcher:
                          f"  excess={req.excess_ride_time}")
                 else:
                     # person left without being tracked as onboard — mark done
+                    # _log("CLEARUR UNKNOWN REQ") luckily this not happen for SmallTestingMap
                     req.status = RequestStatus.COMPLETED
                     req.dropoff_time = now
                     _log(f"  [DROPOFF] person={pid}  t={now:.1f}s (left sim, was {req.status.name})")
@@ -992,7 +1005,7 @@ class HeuristicDispatcher:
                         if not (s.request_id == req.request_id
                                 and s.stop_type == StopType.PICKUP)
                     ]
-                _log(f"  [PICKUP] person={pid}  taxi={req.assigned_taxi_id}  t={now:.1f}s")
+                _log(f"  [PERIODIC PICKUP] person={pid}  taxi={req.assigned_taxi_id}  t={now:.1f}s")
 
             elif not in_vehicle and req.status == RequestStatus.ONBOARD:
                 # Transient state can happen right around a stop boundary.
@@ -1283,11 +1296,16 @@ class HeuristicDispatcher:
     def _process_tick(self, now: float) -> None:
         """Called every 10 steps. Syncs state, detects events, dispatches."""
         # remove taxis that have left the simulation so no API call is made on them
-        active_vids = set(traci.vehicle.getIDList())
-        departed = [tid for tid in self.taxi_plans if tid not in active_vids]
-        for tid in departed:
-            _log(f"  [INFO] taxi {tid} left simulation — removing from fleet")
-            del self.taxi_plans[tid]
+        """ The following might lines might be useful in future if there is problem of
+        dispatching unknown vehicles"""
+        # active_vids = set(traci.vehicle.getIDList())
+        # _log(f"Active VIDs: {active_vids}")
+        # departed = [tid for tid in self.taxi_plans if tid not in active_vids]
+        # if departed:
+        #     _log(f"Departed: {departed}")
+        # for tid in departed:
+        #     _log(f"  [INFO] taxi {tid} left simulation — removing from fleet")
+        #     del self.taxi_plans[tid]
 
         # sync reservations and status
         self._sync_reservations(now)

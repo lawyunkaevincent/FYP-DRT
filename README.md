@@ -8,3 +8,6 @@ python main.py --cfg .\RLTrainingMap1\map.sumocfg --load-ckpt checkpoints/best_s
 
 To visualize the best policy:
 python visualize_policy.py --cfg .\RLTrainingMap1\map.sumocfg --ckpt checkpoints/best_sarsa.pkl
+
+To run the dispactcher at the DQN folder:
+python .\dispatcher.py --cfg ..\SmallTestingMap\map.sumocfg   

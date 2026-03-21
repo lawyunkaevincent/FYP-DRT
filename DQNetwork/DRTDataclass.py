@@ -239,8 +239,8 @@ class TaxiPlan:
 
     # --- position ---
     current_edge: str   = ""
-    current_x:    float = 0.0
-    current_y:    float = 0.0
+    # current_x:    float = 0.0
+    # current_y:    float = 0.0
 
     # --- capacity ---
     capacity:      int = 10
@@ -477,7 +477,7 @@ class IntervalAccumulator:
                        w_ride:     float = 0.02,
                        w_empty:    float = 0.005,
                        w_complete: float = 2.0,
-                       w_violate:  float = 5.0) -> float:
+                       w_violate:  float = 1.0) -> float:
         """
         Convert accumulated costs into a scalar reward.
 

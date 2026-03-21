@@ -1,0 +1,6 @@
+1. Now the requests is only processed at the fixed period,
+not every tick (can consider changing this)
+2. The request completeness is also recoreded in periodic manner,
+this might affect the calculation of completeness time. 
+3. The same goes to ONBOARD passenger, it seems like some of then only sync during the periodic update
+4. Can reduce the time interval between each request to see whether multiple passenger will onboard or not
