@@ -358,6 +358,7 @@ class CandidateInsertion:
     dropoff_eta_new:       float = 0.0
     max_existing_delay:    float = 0.0
     avg_existing_delay:    float = 0.0
+    max_pickup_delay:      float = 0.0  # pickup delay of existing request due to the new insertion
     min_remaining_slack:   float = float("inf")
 
     # --- feasibility ---
