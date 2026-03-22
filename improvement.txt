@@ -1,0 +1,12 @@
+1. Now the requests is only processed at the fixed period,
+not every tick (can consider changing this)
+2. The request completeness is also recoreded in periodic manner,
+this might affect the calculation of completeness time. 
+3. The same goes to ONBOARD passenger, it seems like some of then only sync during the periodic update
+4. Can reduce the time interval between each request to see whether multiple passenger will onboard or not
+5. The feasibility checking in the generate_candidate check for the max ride time violation but haven't check on the
+ max pickup time violation 
+6. Record the essential info into a analyze file and check the average value
+so that the weight can be apply unfairly. 
+7. Can consider whether to normalize each metrics before applying the weight
+8. 

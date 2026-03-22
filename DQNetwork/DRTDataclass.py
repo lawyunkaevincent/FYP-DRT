@@ -239,8 +239,8 @@ class TaxiPlan:
 
     # --- position ---
     current_edge: str   = ""
-    current_x:    float = 0.0
-    current_y:    float = 0.0
+    # current_x:    float = 0.0
+    # current_y:    float = 0.0
 
     # --- capacity ---
     capacity:      int = 10
@@ -358,6 +358,13 @@ class CandidateInsertion:
     dropoff_eta_new:       float = 0.0
     max_existing_delay:    float = 0.0
     avg_existing_delay:    float = 0.0
+    max_pickup_delay:      float = 0.0  # pickup delay of existing request due to the new insertion
+    new_wait_violation: float = 0.0
+    new_ride_violation: float = 0.0
+    existing_wait_violation_sum: float = 0.0
+    existing_wait_violation_max: float = 0.0
+    existing_ride_violation_sum: float = 0.0
+    existing_ride_violation_max: float = 0.0
     min_remaining_slack:   float = float("inf")
 
     # --- feasibility ---
@@ -477,7 +484,7 @@ class IntervalAccumulator:
                        w_ride:     float = 0.02,
                        w_empty:    float = 0.005,
                        w_complete: float = 2.0,
-                       w_violate:  float = 5.0) -> float:
+                       w_violate:  float = 1.0) -> float:
         """
         Convert accumulated costs into a scalar reward.
 

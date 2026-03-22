@@ -192,6 +192,28 @@ class RequestChainGenerator:
     def _eligible_targets(self, edge_id: str, min_reachable_dropoff: int) -> List[str]:
         return self.report.eligible_reachable_from(edge_id, min_reachable=min_reachable_dropoff)
 
+    def _sample_depart_gap(
+        self,
+        depart_steps: Sequence[float],
+        max_random_deviation_pct: float = 0.0,
+    ) -> float:
+        if not depart_steps:
+            raise ValueError("depart_steps must contain at least one value.")
+
+        base_step = float(self._choose([str(step) for step in depart_steps], "depart-step"))
+        if base_step < 0:
+            raise ValueError("depart-step values must be non-negative.")
+        if max_random_deviation_pct < 0:
+            raise ValueError("max_random_deviation_pct must be non-negative.")
+
+        if max_random_deviation_pct == 0:
+            return base_step
+
+        deviation = base_step * (max_random_deviation_pct / 100.0)
+        low = max(0.0, base_step - deviation)
+        high = base_step + deviation
+        return self.rng.uniform(low, high)
+
     def generate_chain(
         self,
         num_requests: int,
@@ -199,7 +221,8 @@ class RequestChainGenerator:
         anchor_mode: str = "stop_first",
         first_pool_top_k: int = 5,
         depart_start: float = 0.0,
-        depart_step: float = 100.0,
+        depart_steps: Sequence[float] = (100.0,),
+        max_random_deviation_pct: float = 0.0,
         close_cycle: bool = True,
         unique_person_ids: bool = True,
         min_reachable_pickup: int = 1,
@@ -209,6 +232,12 @@ class RequestChainGenerator:
             raise ValueError("num_requests must be at least 1.")
         if min_reachable_pickup < 0 or min_reachable_dropoff < 0:
             raise ValueError("Minimum reachable thresholds must be non-negative.")
+        if not depart_steps:
+            raise ValueError("depart_steps must contain at least one value.")
+        if any(step < 0 for step in depart_steps):
+            raise ValueError("All depart_steps must be non-negative.")
+        if max_random_deviation_pct < 0:
+            raise ValueError("max_random_deviation_pct must be non-negative.")
 
         anchor_edge = self._pick_anchor_edge(
             taxi_anchor=taxi_anchor,
@@ -243,10 +272,12 @@ class RequestChainGenerator:
                 f"min reachable count {min_reachable_dropoff}."
             )
         first_to = self._choose(self._rank_by_reachability(first_to_candidates), "first request to-edge")
+
+        current_depart = depart_start
         rides.append(
             RequestRide(
                 person_id="0" if unique_person_ids else "req",
-                depart=depart_start,
+                depart=current_depart,
                 from_edge=first_from,
                 to_edge=first_to,
             )
@@ -297,10 +328,15 @@ class RequestChainGenerator:
                     f"request {idx} to-edge",
                 )
 
+            current_depart += self._sample_depart_gap(
+                depart_steps=depart_steps,
+                max_random_deviation_pct=max_random_deviation_pct,
+            )
+
             rides.append(
                 RequestRide(
                     person_id=str(idx) if unique_person_ids else "req",
-                    depart=depart_start + idx * depart_step,
+                    depart=current_depart,
                     from_edge=current_from,
                     to_edge=current_to,
                 )
@@ -351,7 +387,19 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--output", required=True, help="Path to output requests .rou.xml")
     parser.add_argument("--num-requests", type=int, default=36, help="Number of person requests to generate")
     parser.add_argument("--depart-start", type=float, default=0.0, help="First request depart time")
-    parser.add_argument("--depart-step", type=float, default=100.0, help="Depart gap between requests")
+    parser.add_argument(
+        "--depart-step",
+        type=float,
+        nargs="+",
+        default=[100.0],
+        help="One or more depart gaps between requests. Example: --depart-step 50 100 200",
+    )
+    parser.add_argument(
+        "--max-random-deviation-pct",
+        type=float,
+        default=0.0,
+        help="Maximum random deviation percentage applied to the chosen depart-step.",
+    )
     parser.add_argument("--seed", type=int, default=42, help="Random seed")
     parser.add_argument(
         "--first-top-k",
@@ -397,7 +445,8 @@ def main() -> None:
         anchor_mode=args.anchor_mode,
         first_pool_top_k=args.first_top_k,
         depart_start=args.depart_start,
-        depart_step=args.depart_step,
+        depart_steps=args.depart_step,
+        max_random_deviation_pct=args.max_random_deviation_pct,
         close_cycle=not args.no_close_cycle,
         min_reachable_pickup=args.min_reachable_pickup,
         min_reachable_dropoff=args.min_reachable_dropoff,

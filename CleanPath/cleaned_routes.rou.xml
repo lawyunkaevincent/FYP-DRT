@@ -1,8 +1,0 @@
-<routes xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://sumo.dlr.de/xsd/routes_file.xsd">
-    <person id="211" depart="211.00">
-        <ride from="1218672122#3" to="-53658196#2" lines="taxi" />
-    </person>
-    <person id="339" depart="339.00">
-        <ride from="53655549#0" to="-53658195#0" lines="taxi" />
-    </person>
-    </routes>
