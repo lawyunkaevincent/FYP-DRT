@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!-- generated on 2026-03-21T17:52:48.140575+08:00 by Eclipse SUMO GUI 1.26.0
+<!-- generated on 2026-03-22T16:30:28.953909+08:00 by Eclipse SUMO GUI 1.26.0
 <sumoConfiguration xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://sumo.dlr.de/xsd/sumoConfiguration.xsd">
 
     <input>
@@ -423,3 +423,4 @@
     <stopinfo id="t_1" type="myTaxi" lane="B2B1_0" pos="4.99" parking="1" started="20392.00" ended="20393.00" initialPersons="0" loadedPersons="1" unloadedPersons="0" initialContainers="0" loadedContainers="0" unloadedContainers="0" blockedDuration="0.00"/>
     <stopinfo id="t_0" type="myTaxi" lane="B1C1_0" pos="79.20" parking="1" started="20445.00" ended="20522.00" initialPersons="1" loadedPersons="0" unloadedPersons="1" initialContainers="0" loadedContainers="0" unloadedContainers="0" blockedDuration="0.00"/>
     <stopinfo id="t_0" type="myTaxi" lane="A2A1_0" pos="4.99" parking="1" started="20581.00" ended="20582.00" initialPersons="0" loadedPersons="1" unloadedPersons="0" initialContainers="0" loadedContainers="0" unloadedContainers="0" blockedDuration="0.00"/>
+</stops>

@@ -46,12 +46,12 @@ NORMALIZE_SCORE_COMPONENTS = True
 
 # For very large / skewed terms, compress first before normalization
 LOG_SCALE_KEYS = {
-    "new_wait_viol_cost",
-    "new_ride_viol_cost",
-    "exist_wait_viol_cost",
-    "exist_ride_viol_cost",
-    "workload_cost",
-    "imbalance_cost",
+    "new_wait_viol",
+    "new_ride_viol",
+    "exist_wait_viol",
+    "exist_ride_viol",
+    "workload",
+    "imbalance",
 }
 
 # Optional hard clipping after normalization to stop extreme outliers
@@ -119,17 +119,17 @@ def _log(msg: str) -> None:
 W_MAX_ONBOARD_DELAY = 1.55   # protect the worst existing passenger from large delay
 W_AVG_ONBOARD_DELAY = 0.18   # mild average-delay smoothing for existing riders
 W_WAIT_SO_FAR      = 0.18    # request already waited before this decision
-W_FUTURE_WAIT      = 1.05    # strong penalty for extra time until pickup from now
+W_FUTURE_WAIT      = 0.3    # strong penalty for extra time until pickup from now
 W_TOTAL_WAIT       = 0.10    # light extra guard on total wait since request time
-W_ROUTE            = 0.3    # mild penalty for route extension
-W_ACTIVATION       = 2.80    # lighter cost for waking an idle taxi
-W_WORKLOAD         = 0.035   # penalise long remaining suffix on one taxi
-W_IMBALANCE        = 0.050   # penalise overloading one taxi relative to the other
-W_SHARE_BONUS      = 7.0     # reward compact, useful pooling
+W_ROUTE            = 0.2    # mild penalty for route extension
+W_ACTIVATION       = 0.25   # lighter cost for waking an idle taxi
+W_WORKLOAD         = 0.2  # penalise long remaining suffix on one taxi
+W_IMBALANCE        = 0.2   # penalise overloading one taxi relative to the other
+W_SHARE_BONUS      = 0.1     # reward compact, useful pooling
 W_NEW_WAIT_VIOL = 0.25
-W_NEW_RIDE_VIOL = 0.08
-W_EXIST_WAIT_VIOL = 0.35
-W_EXIST_RIDE_VIOL = 0.12
+W_NEW_RIDE_VIOL = 0.3
+W_EXIST_WAIT_VIOL = 0.5
+W_EXIST_RIDE_VIOL = 0.25
 # FOR REQUEST
 REQ_BASE_WAIT = 120.0      # everyone gets 2 minutes baseline
 REQ_ALPHA = 0.5            # add 0.5 sec tolerated wait per 1 sec direct trip
@@ -817,13 +817,11 @@ def score_candidate(
     now: float,
 ) -> float:
     """
-    v7 scorer: hybrid of v5 and v6.
-
-    Main design goals:
-      - keep the strong v5 focus on serving requests soon
-      - protect the worst existing passenger from excessive extra delay
-      - still reward compact, safe pooling
-      - avoid overloading one taxi when the other can help earlier
+    Scoring pipeline:
+      1. compute raw component metrics
+      2. normalize raw metrics online
+      3. apply weights AFTER normalization
+      4. combine into final score
     """
     if c.is_defer:
         return -1e9
@@ -836,31 +834,15 @@ def score_candidate(
     future_wait = max(0.0, c.pickup_eta_new - now)
     total_wait = max(0.0, c.pickup_eta_new - request.request_time)
 
-    # max delay experienced by any stop of onboarding passenger
-    max_delay_cost = W_MAX_ONBOARD_DELAY * c.max_existing_delay
-    avg_delay_cost = W_AVG_ONBOARD_DELAY * c.avg_existing_delay
-    waited_cost = W_WAIT_SO_FAR * waiting_so_far
-    future_wait_cost = W_FUTURE_WAIT * future_wait
-    total_wait_cost = W_TOTAL_WAIT * total_wait
-    route_cost = W_ROUTE * c.added_route_time
-    new_wait_viol_cost = W_NEW_WAIT_VIOL * (c.new_wait_violation ** 2)
-    new_ride_viol_cost = W_NEW_RIDE_VIOL * (c.new_ride_violation ** 2)
-
-    exist_wait_viol_cost = W_EXIST_WAIT_VIOL * (
-        (c.existing_wait_violation_sum ** 2) + 2.0 * (c.existing_wait_violation_max ** 2)
-    )
-
-    exist_ride_viol_cost = W_EXIST_RIDE_VIOL * (
-        (c.existing_ride_violation_sum ** 2) + 2.0 * (c.existing_ride_violation_max ** 2)
-    )
-
     is_idle_activation = (plan.status == TaxiStatus.IDLE and len(plan.stops) == 0)
     slack = max(0.0, getattr(request, "max_wait", 300.0) - total_wait)
     urgency_factor = 1.0 if slack >= 60.0 else max(0.10, slack / 60.0)
-    activation_cost = (W_ACTIVATION * urgency_factor) if is_idle_activation else 0.0
+    activation_raw = urgency_factor if is_idle_activation else 0.0
 
-    suffix_completion = max(0.0, c.resulting_stops[-1].eta - now) if c.resulting_stops else 0.0
-    workload_cost = W_WORKLOAD * suffix_completion
+    suffix_completion = (
+        max(0.0, c.resulting_stops[-1].eta - now)
+        if c.resulting_stops else 0.0
+    )
 
     other_workloads = [
         _plan_remaining_workload(tp, now)
@@ -868,64 +850,99 @@ def score_candidate(
         if tid != c.taxi_id
     ]
     baseline_other = min(other_workloads) if other_workloads else 0.0
-    imbalance_cost = W_IMBALANCE * max(0.0, suffix_completion - baseline_other)
+    imbalance_raw = max(0.0, suffix_completion - baseline_other)
 
     before_unique = len(_unique_req_ids_in_stops(plan.stops)) + len(plan.onboard_request_ids)
     after_unique = len(_unique_req_ids_in_stops(c.resulting_stops)) + len(plan.onboard_request_ids)
     share_gain = max(0, after_unique - max(1, before_unique))
-    compact_share = (after_unique >= 2 and c.max_existing_delay <= 30.0 and future_wait <= 150.0)
-    share_bonus = (W_SHARE_BONUS * share_gain) if compact_share else 0.0
-
-    row = {
-        # "waiting_so_far": waiting_so_far,
-        # "future_wait": future_wait,
-        # "total_wait": total_wait,
-        # "max_existing_delay": c.max_existing_delay,
-        # "avg_existing_delay": c.avg_existing_delay,
-        # "added_route_time": c.added_route_time,
-        # "new_wait_violation" : c.new_wait_violation,
-        # "new_ride_violation" : c.new_ride_violation,
-        # "existing_wait_violation": c.existing_wait_violation_sum,
-        # "existing_ride_violation": c.existing_ride_violation_sum,
-        # "suffix_completion": suffix_completion,
-        # "baseline_other": baseline_other,
-        # "before_unique": before_unique,
-        # "after_unique": after_unique,
-        # "share_gain": share_gain,
-        # "compact_share": int(compact_share),
-        "share_bonus": share_bonus,
-        "avg_delay_cost": avg_delay_cost,
-        "max_delay_cost": max_delay_cost,
-        "future_wait_cost": future_wait_cost, 
-        "total_wait_cost": total_wait_cost,
-        "route_cost": route_cost,
-        "activation_cost": activation_cost,
-        "workload_cost": workload_cost,
-        "imbalance_cost": imbalance_cost,
-        "new_wait_viol_cost": new_wait_viol_cost,
-        "new_ride_viol_cost": new_ride_viol_cost,
-        "exist_wait_viol_cost": exist_wait_viol_cost,
-        "exist_ride_viol_cost": exist_ride_viol_cost,
-        "share_bonus": share_bonus
-    }
-    _append_score_metrics_row(row)
-
-    total_cost = (
-        max_delay_cost
-        + avg_delay_cost
-        + waited_cost
-        + future_wait_cost
-        + total_wait_cost
-        + route_cost
-        + activation_cost
-        + workload_cost
-        + imbalance_cost
-        + new_wait_viol_cost
-        + new_ride_viol_cost
-        + exist_wait_viol_cost
-        + exist_ride_viol_cost
-        - share_bonus
+    compact_share = (
+        after_unique >= 2
+        and c.max_existing_delay <= 30.0
+        and future_wait <= 150.0
     )
+    share_raw = float(share_gain) if compact_share else 0.0
+
+    # --------------------------------------------------
+    # Raw metrics only (NO weights here)
+    # --------------------------------------------------
+    raw_cost_components = {
+        "max_delay": c.max_existing_delay,
+        "avg_delay": c.avg_existing_delay,
+        "waited": waiting_so_far,
+        "future_wait": future_wait,
+        "total_wait": total_wait,
+        "route": c.added_route_time,
+        "activation": activation_raw,
+        "workload": suffix_completion,
+        "imbalance": imbalance_raw,
+        "new_wait_viol": c.new_wait_violation ** 2,
+        "new_ride_viol": c.new_ride_violation ** 2,
+        "exist_wait_viol": (
+            (c.existing_wait_violation_sum ** 2)
+            + 2.0 * (c.existing_wait_violation_max ** 2)
+        ),
+        "exist_ride_viol": (
+            (c.existing_ride_violation_sum ** 2)
+            + 2.0 * (c.existing_ride_violation_max ** 2)
+        ),
+    }
+
+    raw_bonus_components = {
+        "share": share_raw,
+    }
+
+    # --------------------------------------------------
+    # Normalize raw metrics first
+    # --------------------------------------------------
+    norm_cost_components = _normalize_component_dict(raw_cost_components)
+    norm_bonus_components = _normalize_component_dict(raw_bonus_components)
+
+    # --------------------------------------------------
+    # Apply weights AFTER normalization
+    # --------------------------------------------------
+    weighted_cost_components = {
+        "max_delay_cost": W_MAX_ONBOARD_DELAY * norm_cost_components["max_delay"],
+        # "avg_delay_cost": W_AVG_ONBOARD_DELAY * norm_cost_components["avg_delay"],
+        "waited_cost": W_WAIT_SO_FAR * norm_cost_components["waited"],
+        "future_wait_cost": W_FUTURE_WAIT * norm_cost_components["future_wait"],
+        # "total_wait_cost": W_TOTAL_WAIT * norm_cost_components["total_wait"],
+        "route_cost": W_ROUTE * norm_cost_components["route"],
+        "activation_cost": W_ACTIVATION * norm_cost_components["activation"],
+        "workload_cost": W_WORKLOAD * norm_cost_components["workload"],
+        "imbalance_cost": W_IMBALANCE * norm_cost_components["imbalance"],
+        "new_wait_viol_cost": W_NEW_WAIT_VIOL * norm_cost_components["new_wait_viol"],
+        "new_ride_viol_cost": W_NEW_RIDE_VIOL * norm_cost_components["new_ride_viol"],
+        "exist_wait_viol_cost": W_EXIST_WAIT_VIOL * norm_cost_components["exist_wait_viol"],
+        "exist_ride_viol_cost": W_EXIST_RIDE_VIOL * norm_cost_components["exist_ride_viol"],
+    }
+
+    weighted_bonus_components = {
+        "share_bonus": W_SHARE_BONUS * norm_bonus_components["share"],
+    }
+
+    # --------------------------------------------------
+    # Save raw / normalized / weighted values
+    # --------------------------------------------------
+    debug_row = {}
+
+    for k, v in raw_cost_components.items():
+        debug_row[f"raw_{k}"] = v
+    for k, v in raw_bonus_components.items():
+        debug_row[f"raw_{k}"] = v
+
+    for k, v in norm_cost_components.items():
+        debug_row[f"norm_{k}"] = v
+    for k, v in norm_bonus_components.items():
+        debug_row[f"norm_{k}"] = v
+
+    for k, v in weighted_cost_components.items():
+        debug_row[k] = v
+    for k, v in weighted_bonus_components.items():
+        debug_row[k] = v
+
+    _append_score_metrics_row(debug_row)
+
+    total_cost = sum(weighted_cost_components.values()) - sum(weighted_bonus_components.values())
     return -total_cost
 
 
@@ -1455,48 +1472,48 @@ class HeuristicDispatcher:
         # earlier than any already-busy taxi, give it an explicit bonus so we do
         # not keep overloading the busy taxi just to avoid a tiny activation cost.
         # Also penalise busy options that are clearly slower than the best idle one.
-        non_defer = [c for c in candidates if not c.is_defer]
-        busy_pickups = [
-            cand.pickup_eta_new
-            for cand in non_defer
-            if not (
-                self.taxi_plans.get(cand.taxi_id)
-                and self.taxi_plans[cand.taxi_id].status == TaxiStatus.IDLE
-                and len(self.taxi_plans[cand.taxi_id].stops) == 0
-            )
-        ]
-        best_busy_pickup = min(busy_pickups) if busy_pickups else None
-        idle_pickups = [
-            cand.pickup_eta_new
-            for cand in non_defer
-            if (
-                self.taxi_plans.get(cand.taxi_id)
-                and self.taxi_plans[cand.taxi_id].status == TaxiStatus.IDLE
-                and len(self.taxi_plans[cand.taxi_id].stops) == 0
-            )
-        ]
-        best_idle_pickup = min(idle_pickups) if idle_pickups else None
-        for i, cand in enumerate(candidates):
-            if cand.is_defer:
-                continue
-            plan = self.taxi_plans.get(cand.taxi_id)
-            if plan is None:
-                continue
-            is_idle = (plan.status == TaxiStatus.IDLE and len(plan.stops) == 0)
-            if is_idle and best_busy_pickup is not None:
-                pickup_advantage = best_busy_pickup - cand.pickup_eta_new
-                if pickup_advantage >= 20.0:
-                    scores[i] += min(24.0, 0.40 * pickup_advantage)
-                elif pickup_advantage > 0:
-                    scores[i] += min(10.0, 0.18 * pickup_advantage)
-            if (not is_idle) and best_idle_pickup is not None:
-                slower_than_idle = cand.pickup_eta_new - best_idle_pickup
-                if slower_than_idle >= 20.0:
-                    scores[i] -= min(22.0, 0.30 * slower_than_idle)
-            # Near max-wait violations should strongly prefer earlier pickup.
-            slack_after = getattr(request, "max_wait", 300.0) - max(0.0, cand.pickup_eta_new - request.request_time)
-            if slack_after < 45.0:
-                scores[i] += max(0.0, (45.0 - slack_after) * 0.35)
+        # non_defer = [c for c in candidates if not c.is_defer]
+        # busy_pickups = [
+        #     cand.pickup_eta_new
+        #     for cand in non_defer
+        #     if not (
+        #         self.taxi_plans.get(cand.taxi_id)
+        #         and self.taxi_plans[cand.taxi_id].status == TaxiStatus.IDLE
+        #         and len(self.taxi_plans[cand.taxi_id].stops) == 0
+        #     )
+        # ]
+        # best_busy_pickup = min(busy_pickups) if busy_pickups else None
+        # idle_pickups = [
+        #     cand.pickup_eta_new
+        #     for cand in non_defer
+        #     if (
+        #         self.taxi_plans.get(cand.taxi_id)
+        #         and self.taxi_plans[cand.taxi_id].status == TaxiStatus.IDLE
+        #         and len(self.taxi_plans[cand.taxi_id].stops) == 0
+        #     )
+        # ]
+        # best_idle_pickup = min(idle_pickups) if idle_pickups else None
+        # for i, cand in enumerate(candidates):
+        #     if cand.is_defer:
+        #         continue
+        #     plan = self.taxi_plans.get(cand.taxi_id)
+        #     if plan is None:
+        #         continue
+        #     is_idle = (plan.status == TaxiStatus.IDLE and len(plan.stops) == 0)
+        #     if is_idle and best_busy_pickup is not None:
+        #         pickup_advantage = best_busy_pickup - cand.pickup_eta_new
+        #         if pickup_advantage >= 20.0:
+        #             scores[i] += min(24.0, 0.40 * pickup_advantage)
+        #         elif pickup_advantage > 0:
+        #             scores[i] += min(10.0, 0.18 * pickup_advantage)
+        #     if (not is_idle) and best_idle_pickup is not None:
+        #         slower_than_idle = cand.pickup_eta_new - best_idle_pickup
+        #         if slower_than_idle >= 20.0:
+        #             scores[i] -= min(22.0, 0.30 * slower_than_idle)
+        #     # Near max-wait violations should strongly prefer earlier pickup.
+        #     slack_after = getattr(request, "max_wait", 300.0) - max(0.0, cand.pickup_eta_new - request.request_time)
+        #     if slack_after < 45.0:
+        #         scores[i] += max(0.0, (45.0 - slack_after) * 0.35)
 
         _print_top5(candidates, scores, request, self.taxi_plans, now)
 
@@ -1842,6 +1859,16 @@ class HeuristicDispatcher:
         if excess_rides:
             _log(f"  Avg excess ride  : {sum(excess_rides)/len(excess_rides):.1f}s"
                   f"  max={max(excess_rides):.1f}s")
+        normalizer_rows = _SCORE_NORMALIZER.get_summary_rows()
+        if normalizer_rows:
+            _log("\n  Learned score-normalizer statistics:")
+            for row in normalizer_rows:
+                _log(
+                    f"    {row['metric']:<24} "
+                    f"count={row['count']:>5}  "
+                    f"mean={row['mean']:>10.4f}  "
+                    f"std={row['std']:>10.4f}"
+                )
 
 
 # ---------------------------------------------------------------------------
