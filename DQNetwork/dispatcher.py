@@ -418,6 +418,10 @@ def generate_candidates(
                 actual_ride = do_eta - pu_eta
                 if request.direct_travel_time > 0:
                     if actual_ride > req_max_ride_factor * request.direct_travel_time:
+                        _log(f"Candidate rejected for request {request.request_id} on taxi {taxi_id}: "
+                             f"ride time {actual_ride:.1f}s > {req_max_ride_factor} * {request.direct_travel_time:.1f}s",
+                             f"PU idx={pu_idx} DO idx={do_idx}",
+                             f"TAXI STOPS: {new_stops}", level=4)
                         continue
 
                 # ── 4. Existing passenger constraints ──────────────────────
@@ -445,6 +449,10 @@ def generate_candidates(
                             if pu_new_eta is not None:
                                 if etas[i] - pu_new_eta > getattr(r, "max_ride_factor", max_ride_factor) * r.direct_travel_time:
                                     feasible = False
+                                    _log(f"Candidate rejected for request {request.request_id} on taxi {taxi_id}: "
+                                         f"existing delay {delay:.1f}s > {getattr(r, 'max_ride_factor', max_ride_factor)} * {r.direct_travel_time:.1f}s",
+                                         f"PU idx={pu_idx} DO idx={do_idx}",
+                                         f"TAXI STOPS: {new_stops}", level=4)
                                     break
                     max_existing_delay = max(max_existing_delay, delay)
                     total_existing_delay += delay
@@ -595,6 +603,7 @@ def _refresh_taxi_plans(taxi_plans: dict[str, TaxiPlan]) -> None:
             x, y = traci.vehicle.getPosition(taxi_id)
             plan.current_x = x
             plan.current_y = y
+            _log(f"Updated taxi {taxi_id} position: edge={plan.current_edge} x={x:.1f} y={y:.1f}")
         except traci.TraCIException:
             pass
 
@@ -661,7 +670,7 @@ def _detect_events(
     new_arrivals  = list(current_req_ids  - prev_known_req_ids)
     new_pickups   = list(current_onboard  - prev_onboard_ids)
     new_dropoffs  = list(current_complete - prev_completed_ids)
-
+    _log(f"New arrivals: {new_arrivals}, pickups: {new_pickups}, dropoffs: {new_dropoffs}")
     had_event = bool(new_arrivals or new_pickups or new_dropoffs)
     return had_event, new_arrivals, new_pickups, new_dropoffs
 
