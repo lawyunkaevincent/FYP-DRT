@@ -359,6 +359,12 @@ class CandidateInsertion:
     max_existing_delay:    float = 0.0
     avg_existing_delay:    float = 0.0
     max_pickup_delay:      float = 0.0  # pickup delay of existing request due to the new insertion
+    new_wait_violation: float = 0.0
+    new_ride_violation: float = 0.0
+    existing_wait_violation_sum: float = 0.0
+    existing_wait_violation_max: float = 0.0
+    existing_ride_violation_sum: float = 0.0
+    existing_ride_violation_max: float = 0.0
     min_remaining_slack:   float = float("inf")
 
     # --- feasibility ---

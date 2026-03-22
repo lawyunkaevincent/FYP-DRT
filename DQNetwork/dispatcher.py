@@ -35,8 +35,27 @@ from datetime import datetime
 from typing import Callable, Optional
 import csv
 from pathlib import Path
-
+import math
 import traci
+
+# ---------------------------------------------------------------------------
+# Score normalization settings
+# ---------------------------------------------------------------------------
+
+NORMALIZE_SCORE_COMPONENTS = True
+
+# For very large / skewed terms, compress first before normalization
+LOG_SCALE_KEYS = {
+    "new_wait_viol_cost",
+    "new_ride_viol_cost",
+    "exist_wait_viol_cost",
+    "exist_ride_viol_cost",
+    "workload_cost",
+    "imbalance_cost",
+}
+
+# Optional hard clipping after normalization to stop extreme outliers
+NORMALIZED_CLIP_VALUE = 3.0
 
 from DRTDataclass import (
     CandidateInsertion,
@@ -107,6 +126,10 @@ W_ACTIVATION       = 2.80    # lighter cost for waking an idle taxi
 W_WORKLOAD         = 0.035   # penalise long remaining suffix on one taxi
 W_IMBALANCE        = 0.050   # penalise overloading one taxi relative to the other
 W_SHARE_BONUS      = 7.0     # reward compact, useful pooling
+W_NEW_WAIT_VIOL = 0.25
+W_NEW_RIDE_VIOL = 0.08
+W_EXIST_WAIT_VIOL = 0.35
+W_EXIST_RIDE_VIOL = 0.12
 # FOR REQUEST
 REQ_BASE_WAIT = 120.0      # everyone gets 2 minutes baseline
 REQ_ALPHA = 0.5            # add 0.5 sec tolerated wait per 1 sec direct trip
@@ -413,28 +436,44 @@ def generate_candidates(
                     # _log(f"TRIGGER PEAK")
                     continue
 
-                # ── 2. New passenger pickup wait ───────────────────────────
+                # # ── 2. New passenger pickup wait ───────────────────────────
                 pu_idx_in_new = new_stops.index(pu_stop)
                 pu_eta = etas[pu_idx_in_new]
-                if pu_eta - request.request_time > req_max_wait:
-                    # _log(f"TRIGGER PICKUP WAIT")
-                    continue
+                # if pu_eta - request.request_time > req_max_wait:
+                #     # _log(f"TRIGGER PICKUP WAIT")
+                #     continue
 
-                # ── 3. New passenger ride time ─────────────────────────────
+                # # ── 3. New passenger ride time ─────────────────────────────
                 do_idx_in_new = new_stops.index(do_stop)
                 do_eta = etas[do_idx_in_new]
+                # actual_ride = do_eta - pu_eta
+                # if request.direct_travel_time > 0:
+                #     if actual_ride > req_max_ride_factor * request.direct_travel_time:
+                #         _log(f"Candidate rejected NEW REQ {request.request_id} on taxi {taxi_id}: \n ride time {actual_ride:.1f}s > {req_max_ride_factor} * {request.direct_travel_time:.1f} \n PU idx={pu_idx} DO idx={do_idx}\nTAXI STOPS: {new_stops}")
+                #         continue
+                new_wait = max(0.0, pu_eta - request.request_time)
+                allowed_new_wait = req_max_wait
+                new_wait_violation = max(0.0, new_wait - allowed_new_wait)
+
                 actual_ride = do_eta - pu_eta
-                if request.direct_travel_time > 0:
-                    if actual_ride > req_max_ride_factor * request.direct_travel_time:
-                        _log(f"Candidate rejected NEW REQ {request.request_id} on taxi {taxi_id}: \n ride time {actual_ride:.1f}s > {req_max_ride_factor} * {request.direct_travel_time:.1f} \n PU idx={pu_idx} DO idx={do_idx}\nTAXI STOPS: {new_stops}")
-                        continue
+                allowed_new_ride = (
+                    req_max_ride_factor * request.direct_travel_time
+                    if request.direct_travel_time > 0 else float("inf")
+                )
+                new_ride_violation = max(0.0, actual_ride - allowed_new_ride)
 
                 # ── 4. Existing passenger constraints ──────────────────────
-                feasible = True
+                # feasible = True
                 max_existing_delay = 0.0
                 total_existing_delay = 0.0
                 max_pickup_delay = 0.0
                 existing_count = 0
+
+                existing_wait_violation_sum = 0.0
+                existing_wait_violation_max = 0.0
+                existing_ride_violation_sum = 0.0
+                existing_ride_violation_max = 0.0
+
 
                 # the following is used to check the feasibility so that:
                 # 1) existing not-yet-picked-up passengers do not exceed max wait
@@ -455,48 +494,88 @@ def generate_candidates(
                     if r is not None:
                         # --- existing passenger pickup-wait feasibility ---
                         # only applies to passengers not yet picked up
+                        # if s.stop_type == StopType.PICKUP:
+                        #     req_max_wait_existing = getattr(r, "max_wait", max_wait)
+                        #     pickup_wait = etas[i] - r.request_time
+                        #     if pickup_wait > req_max_wait_existing:
+                        #         _log(
+                        #             f"Candidate rejected BECAUSE EXISTING REQ WAIT VIOLATION: "
+                        #             f"req={s.request_id} wait={pickup_wait:.1f}s > "
+                        #             f"max_wait={req_max_wait_existing:.1f}s"
+                        #         )
+                        #         feasible = False
+                        #         break
+                        #     max_pickup_delay = max(pickup_wait, max_pickup_delay)
+
                         if s.stop_type == StopType.PICKUP:
                             req_max_wait_existing = getattr(r, "max_wait", max_wait)
                             pickup_wait = etas[i] - r.request_time
-                            if pickup_wait > req_max_wait_existing:
-                                _log(
-                                    f"Candidate rejected BECAUSE EXISTING REQ WAIT VIOLATION: "
-                                    f"req={s.request_id} wait={pickup_wait:.1f}s > "
-                                    f"max_wait={req_max_wait_existing:.1f}s"
-                                )
-                                feasible = False
-                                break
-                            max_pickup_delay = max(pickup_wait, max_pickup_delay)
+                            wait_violation = max(0.0, pickup_wait - req_max_wait_existing)
+
+                            existing_wait_violation_sum += wait_violation
+                            existing_wait_violation_max = max(existing_wait_violation_max, wait_violation)
+                            max_pickup_delay = max(max_pickup_delay, pickup_wait)
 
                         # --- existing passenger ride-time feasibility ---
+                        # elif s.stop_type == StopType.DROPOFF and r.direct_travel_time > 0:
+                        #     pu_new_eta = next(
+                        #         (etas[j] for j, ss in enumerate(new_stops)
+                        #          if ss.request_id == s.request_id
+                        #          and ss.stop_type == StopType.PICKUP),
+                        #         None
+                        #     )
+                        #     if pu_new_eta is not None:
+                        #         max_allowed_ride = (
+                        #             getattr(r, "max_ride_factor", max_ride_factor)
+                        #             * r.direct_travel_time
+                        #         )
+                        #         actual_ride = etas[i] - pu_new_eta
+                        #         if actual_ride > max_allowed_ride:
+                        #             _log(
+                        #                 f"Candidate rejected BECAUSE EXISTING REQ RIDE VIOLATION: "
+                        #                 f"req={s.request_id} ride={actual_ride:.1f}s > "
+                        #                 f"limit={max_allowed_ride:.1f}s"
+                        #             )
+                        #             feasible = False
+                        #             break
+
                         elif s.stop_type == StopType.DROPOFF and r.direct_travel_time > 0:
+                            max_allowed_ride = (
+                                getattr(r, "max_ride_factor", max_ride_factor) * r.direct_travel_time
+                            )
+
+                            # Case 1: passenger not yet picked up in this candidate plan
                             pu_new_eta = next(
                                 (etas[j] for j, ss in enumerate(new_stops)
-                                 if ss.request_id == s.request_id
-                                 and ss.stop_type == StopType.PICKUP),
+                                if ss.request_id == s.request_id
+                                and ss.stop_type == StopType.PICKUP),
                                 None
                             )
+
                             if pu_new_eta is not None:
-                                max_allowed_ride = (
-                                    getattr(r, "max_ride_factor", max_ride_factor)
-                                    * r.direct_travel_time
-                                )
-                                actual_ride = etas[i] - pu_new_eta
-                                if actual_ride > max_allowed_ride:
-                                    _log(
-                                        f"Candidate rejected BECAUSE EXISTING REQ RIDE VIOLATION: "
-                                        f"req={s.request_id} ride={actual_ride:.1f}s > "
-                                        f"limit={max_allowed_ride:.1f}s"
-                                    )
-                                    feasible = False
-                                    break
+                                actual_ride_existing = etas[i] - pu_new_eta
+                                ride_violation = max(0.0, actual_ride_existing - max_allowed_ride)
+
+                            # Case 2: passenger already onboard, pickup stop no longer remains
+                            elif getattr(r, "pickup_time", None) is not None:
+                                actual_ride_existing = etas[i] - r.pickup_time
+                                ride_violation = max(0.0, actual_ride_existing - max_allowed_ride)
+
+                            # Case 3: fallback if pickup_time is missing for some reason
+                            # At least penalize the extra delay added to the dropoff itself.
+                            else:
+                                old_dropoff_eta = orig_eta
+                                ride_violation = max(0.0, etas[i] - old_dropoff_eta)
+
+                            existing_ride_violation_sum += ride_violation
+                            existing_ride_violation_max = max(existing_ride_violation_max, ride_violation)
 
                     max_existing_delay = max(max_existing_delay, delay)
                     total_existing_delay += delay
                     existing_count += 1
 
-                if not feasible:
-                    continue
+                # if not feasible:
+                #     continue
 
                 avg_existing_delay = (
                     total_existing_delay / existing_count
@@ -531,6 +610,12 @@ def generate_candidates(
                     # added_route_time ady
                     avg_existing_delay=avg_existing_delay,
                     max_pickup_delay=max_pickup_delay,
+                    new_wait_violation=new_wait_violation,
+                    new_ride_violation=new_ride_violation,
+                    existing_wait_violation_sum=existing_wait_violation_sum,
+                    existing_wait_violation_max=existing_wait_violation_max,
+                    existing_ride_violation_sum=existing_ride_violation_sum,
+                    existing_ride_violation_max=existing_ride_violation_max,
                     is_feasible=True,
                 )
                 candidates.append(c)
@@ -604,6 +689,81 @@ def _compute_added_existing_passenger_ride_time(
 
     return total_added
 
+class OnlineScoreNormalizer:
+    """
+    Running z-score normalizer for score components.
+
+    Uses Welford's online algorithm:
+      mean_n
+      variance_n
+    so we can normalize each metric without needing a separate preprocessing run.
+    """
+
+    def __init__(self, log_scale_keys: set[str] | None = None, clip_value: float | None = None):
+        self.stats: dict[str, dict[str, float]] = {}
+        self.log_scale_keys = log_scale_keys or set()
+        self.clip_value = clip_value
+
+    def _transform(self, key: str, value: float) -> float:
+        v = float(value)
+
+        # compress heavy-tailed positive costs
+        if key in self.log_scale_keys:
+            v = math.log1p(max(0.0, v))
+
+        return v
+
+    def update_and_normalize(self, key: str, value: float) -> float:
+        """
+        Transform -> update running stats -> return z-score.
+        If too few samples, return transformed value directly at first,
+        then gradually transition to z-scores.
+        """
+        x = self._transform(key, value)
+
+        s = self.stats.setdefault(
+            key,
+            {"n": 0.0, "mean": 0.0, "M2": 0.0}
+        )
+
+        s["n"] += 1.0
+        n = s["n"]
+
+        delta = x - s["mean"]
+        s["mean"] += delta / n
+        delta2 = x - s["mean"]
+        s["M2"] += delta * delta2
+
+        # warm-up phase: avoid unstable normalization when sample count is tiny
+        if n < 5:
+            z = x
+        else:
+            variance = s["M2"] / max(1.0, n - 1.0)
+            std = math.sqrt(max(variance, 1e-6))
+            z = (x - s["mean"]) / std
+
+        if self.clip_value is not None:
+            z = max(-self.clip_value, min(self.clip_value, z))
+
+        return z
+
+    def get_summary_rows(self) -> list[dict]:
+        """
+        Export stats for debugging / CSV if needed.
+        """
+        rows = []
+        for key, s in sorted(self.stats.items()):
+            n = s["n"]
+            variance = s["M2"] / max(1.0, n - 1.0) if n > 1 else 0.0
+            std = math.sqrt(max(variance, 0.0))
+            rows.append({
+                "metric": key,
+                "count": int(n),
+                "mean": s["mean"],
+                "std": std,
+            })
+        return rows
+
 
 # ---------------------------------------------------------------------------
 # Scoring
@@ -620,6 +780,34 @@ def _plan_remaining_workload(plan: TaxiPlan, now: float) -> float:
     if last_eta and last_eta > 0:
         return max(0.0, last_eta - now)
     return max(0.0, getattr(plan, "remaining_route_time", 0.0))
+
+
+def _normalize_component_dict(raw_components: dict[str, float]) -> dict[str, float]:
+    """
+    Normalize component costs so different terms live on a comparable scale.
+    """
+    if not NORMALIZE_SCORE_COMPONENTS:
+        return dict(raw_components)
+
+    normed: dict[str, float] = {}
+    for key, value in raw_components.items():
+        normed[key] = _SCORE_NORMALIZER.update_and_normalize(key, value)
+    return normed
+
+
+def _append_score_metrics_row_with_both(raw_row: dict, norm_row: dict) -> None:
+    """
+    Save both raw and normalized metrics for analysis.
+    """
+    merged = {}
+
+    for k, v in raw_row.items():
+        merged[f"raw_{k}"] = v
+
+    for k, v in norm_row.items():
+        merged[f"norm_{k}"] = v
+
+    _append_score_metrics_row(merged)
 
 
 def score_candidate(
@@ -655,6 +843,16 @@ def score_candidate(
     future_wait_cost = W_FUTURE_WAIT * future_wait
     total_wait_cost = W_TOTAL_WAIT * total_wait
     route_cost = W_ROUTE * c.added_route_time
+    new_wait_viol_cost = W_NEW_WAIT_VIOL * (c.new_wait_violation ** 2)
+    new_ride_viol_cost = W_NEW_RIDE_VIOL * (c.new_ride_violation ** 2)
+
+    exist_wait_viol_cost = W_EXIST_WAIT_VIOL * (
+        (c.existing_wait_violation_sum ** 2) + 2.0 * (c.existing_wait_violation_max ** 2)
+    )
+
+    exist_ride_viol_cost = W_EXIST_RIDE_VIOL * (
+        (c.existing_ride_violation_sum ** 2) + 2.0 * (c.existing_ride_violation_max ** 2)
+    )
 
     is_idle_activation = (plan.status == TaxiStatus.IDLE and len(plan.stops) == 0)
     slack = max(0.0, getattr(request, "max_wait", 300.0) - total_wait)
@@ -679,19 +877,36 @@ def score_candidate(
     share_bonus = (W_SHARE_BONUS * share_gain) if compact_share else 0.0
 
     row = {
-        "waiting_so_far": waiting_so_far,
-        "future_wait": future_wait,
-        "total_wait": total_wait,
-        "max_existing_delay": c.max_existing_delay,
-        "avg_existing_delay": c.avg_existing_delay,
-        "added_route_time": c.added_route_time,
-        "suffix_completion": suffix_completion,
-        "baseline_other": baseline_other,
-        "before_unique": before_unique,
-        "after_unique": after_unique,
-        "share_gain": share_gain,
-        "compact_share": int(compact_share),
+        # "waiting_so_far": waiting_so_far,
+        # "future_wait": future_wait,
+        # "total_wait": total_wait,
+        # "max_existing_delay": c.max_existing_delay,
+        # "avg_existing_delay": c.avg_existing_delay,
+        # "added_route_time": c.added_route_time,
+        # "new_wait_violation" : c.new_wait_violation,
+        # "new_ride_violation" : c.new_ride_violation,
+        # "existing_wait_violation": c.existing_wait_violation_sum,
+        # "existing_ride_violation": c.existing_ride_violation_sum,
+        # "suffix_completion": suffix_completion,
+        # "baseline_other": baseline_other,
+        # "before_unique": before_unique,
+        # "after_unique": after_unique,
+        # "share_gain": share_gain,
+        # "compact_share": int(compact_share),
         "share_bonus": share_bonus,
+        "avg_delay_cost": avg_delay_cost,
+        "max_delay_cost": max_delay_cost,
+        "future_wait_cost": future_wait_cost, 
+        "total_wait_cost": total_wait_cost,
+        "route_cost": route_cost,
+        "activation_cost": activation_cost,
+        "workload_cost": workload_cost,
+        "imbalance_cost": imbalance_cost,
+        "new_wait_viol_cost": new_wait_viol_cost,
+        "new_ride_viol_cost": new_ride_viol_cost,
+        "exist_wait_viol_cost": exist_wait_viol_cost,
+        "exist_ride_viol_cost": exist_ride_viol_cost,
+        "share_bonus": share_bonus
     }
     _append_score_metrics_row(row)
 
@@ -705,6 +920,10 @@ def score_candidate(
         + activation_cost
         + workload_cost
         + imbalance_cost
+        + new_wait_viol_cost
+        + new_ride_viol_cost
+        + exist_wait_viol_cost
+        + exist_ride_viol_cost
         - share_bonus
     )
     return -total_cost
@@ -712,6 +931,12 @@ def score_candidate(
 
 SCORE_RECORD_FILE = Path("score_metrics_record.csv")
 _SCORE_RECORD_HEADER_WRITTEN = False
+
+
+_SCORE_NORMALIZER = OnlineScoreNormalizer(
+    log_scale_keys=LOG_SCALE_KEYS,
+    clip_value=NORMALIZED_CLIP_VALUE,
+)
 
 # this is a helper function to record the metrics into csv
 def _append_score_metrics_row(row: dict) -> None:
@@ -997,7 +1222,13 @@ class HeuristicDispatcher:
             plan.current_edge = traci.vehicle.getRoadID(taxi_id)
             # x, y = traci.vehicle.getPosition(taxi_id)
             # plan.current_x, plan.current_y = x, y
-            plan.capacity = int(traci.vehicle.getPersonCapacity(taxi_id))
+            # plan.capacity = int(traci.vehicle.getPersonCapacity(taxi_id))
+            SAFETY_BUFFER = 2
+            real_capacity = int(traci.vehicle.getPersonCapacity(taxi_id))
+            plan.capacity = max(1, real_capacity - SAFETY_BUFFER)
+
+           
+            _log(f"CAPACITY OF TAXI: {plan.capacity}")
         except traci.TraCIException:
             plan.capacity = 2
         self.taxi_plans[taxi_id] = plan
@@ -1096,8 +1327,10 @@ class HeuristicDispatcher:
                     vtype_str = traci.vehicle.getTypeID(vtype) if vtype else ""
                     route = traci.simulation.findRoute(from_edge, to_edge, vtype_str, routingMode=1)
                     dtt = route.travelTime
+                    max_wait = min(REQ_MAX_WAIT_CAP, REQ_BASE_WAIT + REQ_ALPHA * dtt)
                 except Exception:
                     dtt = 0.0
+                    max_wait = 0.0 
                 req = Request(
                     request_id=pid,   # use pid as fallback res id
                     person_id=pid,
@@ -1105,6 +1338,7 @@ class HeuristicDispatcher:
                     to_edge=to_edge,
                     request_time=now,
                     direct_travel_time=dtt,
+                    max_wait=max_wait
                 )
                 self.requests[pid] = req
                 self.pid_to_resid[pid] = req.request_id
@@ -1503,6 +1737,8 @@ class HeuristicDispatcher:
             self.taxi_plans, self.requests, new_pickups, new_dropoffs,
         )
         request_lookup = _build_request_lookup_by_res_id(self.requests)
+        
+        _log(f"PENDING POOL: {pending_pool}")
 
         has_candidates = False
         if pending_pool and self._eligible_taxis_this_tick:

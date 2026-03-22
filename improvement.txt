@@ -8,3 +8,5 @@ this might affect the calculation of completeness time.
  max pickup time violation 
 6. Record the essential info into a analyze file and check the average value
 so that the weight can be apply unfairly. 
+7. Can consider whether to normalize each metrics before applying the weight
+8. 
